@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ECONOVA – Explore, Play, and Learn Economics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              950: '#050b18',
+              900: '#0a1428',
+              800: '#112240',
+              700: '#1d3557',
+            },
+            electric: {
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+            },
+            gold: {
+              400: '#facc15',
+              500: '#eab308',
+            }
+          },
+          animation: {
+            'float': 'float 4s ease-in-out infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050b18;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+    .glass-card {
+      background: rgba(17, 34, 64, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(56, 189, 248, 0.18);
+    }
+    .glass-nav {
+      background: rgba(5, 11, 24, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+    }
+    .electric-glow {
+      box-shadow: 0 0 25px rgba(14, 165, 233, 0.35);
+    }
+    .gold-glow {
+      box-shadow: 0 0 25px rgba(250, 204, 21, 0.35);
+    }
+    .tab-fade {
+      animation: fadeIn 0.35s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #050b18; }
+    ::-webkit-scrollbar-thumb { background: #1d3557; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #0ea5e9; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-electric-500 selection:text-white">
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- MODAL IDENTITAS SISWA (LOGIN / REGISTRASI) -->
+  <div id="identity-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-navy-950/90 backdrop-blur-md p-4">
+    <div class="glass-card rounded-3xl max-w-md w-full p-6 sm:p-8 border border-electric-400/30 shadow-2xl relative">
+      <button onclick="closeIdentityModal()" id="close-modal-btn" class="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-electric-500 to-blue-700 flex items-center justify-center text-white font-black text-xl shadow-lg">E</div>
+        <div>
+          <h2 class="text-xl font-extrabold text-white">Identitas Pemain</h2>
+          <p class="text-xs text-electric-400 font-medium">Simpan progres, XP & peringkatmu secara otomatis</p>
+        </div>
+      </div>
+      <p class="text-sm text-slate-300 mb-5 leading-relaxed">
+        Gunakan <strong>Nama Lengkap</strong> dan <strong>Kelas</strong> yang sama setiap kali masuk agar seluruh poin XP dan badge tetap tersimpan pada akunmu.
+      </p>
+      <form id="identity-form" onsubmit="handleIdentitySubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Nama Lengkap Siswa *</label>
+          <input type="text" id="input-fullname" required placeholder="Contoh: Raka Pratama Wijaya"
+            class="w-full px-4 py-3 rounded-xl bg-navy-900/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-electric-400 transition" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Kelas *</label>
+            <select id="input-class" required
+              class="w-full px-4 py-3 rounded-xl bg-navy-900/90 border border-slate-700 text-white focus:outline-none focus:border-electric-400 transition">
+              <option value="">Pilih Kelas</option>
+              <option value="X-1">X-1</option>
+              <option value="X-2">X-2</option>
+              <option value="X-3">X-3</option>
+              <option value="X-4">X-4</option>
+              <option value="X-5">X-5</option>
+              <option value="X-6">X-6</option>
+              <option value="X-7">X-7</option>
+              <option value="X-8">X-8</option>
+              <option value="X-IPS-1">X-IPS-1</option>
+              <option value="X-IPS-2">X-IPS-2</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">No. Absen (Opsional)</label>
+            <input type="number" id="input-absent" min="1" max="50" placeholder="Contoh: 14"
+              class="w-full px-4 py-3 rounded-xl bg-navy-900/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-electric-400 transition" />
+          </div>
+        </div>
+        <button type="submit" id="btn-submit-identity"
+          class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-electric-500 to-blue-600 hover:from-electric-400 hover:to-blue-500 text-white font-bold shadow-lg electric-glow transition transform active:scale-98 flex items-center justify-center gap-2">
+          <span>Simpan & Mulai Petualangan</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="glass-nav sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        <!-- Brand Logo -->
+        <div onclick="navigateTo('home')" class="flex items-center gap-3 cursor-pointer group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-electric-500 via-blue-600 to-gold-400 p-0.5 shadow-md group-hover:scale-105 transition">
+            <div class="w-full h-full bg-navy-950 rounded-[10px] flex items-center justify-center">
+              <svg class="w-6 h-6 text-electric-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+          </div>
+          <div>
+            <span class="font-black text-xl tracking-tight bg-gradient-to-r from-white via-electric-400 to-gold-400 bg-clip-text text-transparent">ECONOVA</span>
+            <span class="hidden sm:block text-[10px] text-slate-400 font-medium tracking-widest uppercase">Explore • Play • Learn</span>
+          </div>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+          <button onclick="navigateTo('home')" data-nav="home" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-white bg-electric-500/20 border border-electric-400/30 transition">Home</button>
+          <button onclick="navigateTo('materi')" data-nav="materi" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition">Materi</button>
+          <button onclick="navigateTo('game')" data-nav="game" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition">Game Center</button>
+          <button onclick="navigateTo('leaderboard')" data-nav="leaderboard" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition">Leaderboard</button>
+          <button onclick="navigateTo('profil')" data-nav="profil" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition">Profil</button>
+          <button onclick="navigateTo('tentang')" data-nav="tentang" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition">Tentang</button>
+        </nav>
+
+        <!-- Player Status Pill & Mobile Menu Button -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button onclick="openIdentityModal()" id="header-player-badge"
+            class="flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-navy-800/90 hover:bg-navy-700 border border-electric-400/30 transition text-left">
+            <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-gold-400 to-amber-500 text-navy-950 font-black text-xs flex items-center justify-center" id="header-lvl">1</div>
+            <div class="hidden sm:block">
+              <div id="header-name" class="text-xs font-bold text-white leading-none">Masuk Siswa</div>
+              <div id="header-xp" class="text-[11px] font-semibold text-gold-400 mt-0.5">0 XP</div>
+            </div>
+          </button>
+
+          <button onclick="toggleMobileMenu()" class="md:hidden p-2.5 rounded-xl bg-navy-800 text-slate-200 hover:text-white border border-slate-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu" class="hidden md:hidden bg-navy-900 border-b border-slate-800 px-4 pt-2 pb-4 space-y-1">
+      <button onclick="navigateTo('home'); toggleMobileMenu()" class="block w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:bg-electric-500/20">Home</button>
+      <button onclick="navigateTo('materi'); toggleMobileMenu()" class="block w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-electric-500/20">Materi Pembelajaran</button>
+      <button onclick="navigateTo('game'); toggleMobileMenu()" class="block w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-electric-500/20">Game Center</button>
+      <button onclick="navigateTo('leaderboard'); toggleMobileMenu()" class="block w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-electric-500/20">Leaderboard</button>
+      <button onclick="navigateTo('profil'); toggleMobileMenu()" class="block w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-electric-500/20">Profil Pemain</button>
+      <button onclick="navigateTo('tentang'); toggleMobileMenu()" class="block w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-300 hover:bg-electric-500/20">Tentang ECONOVA</button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+
+    <!-- =====================================================================
+         SECTION 1: BERANDA (HOME)
+         ===================================================================== -->
+    <section id="view-home" class="tab-fade space-y-12">
+      <!-- Hero Section -->
+      <div class="relative rounded-3xl overflow-hidden glass-card p-6 sm:p-10 lg:p-14 border border-electric-400/25">
+        <div class="absolute -top-24 -right-24 w-80 h-80 bg-electric-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-gold-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="grid lg:grid-cols-12 gap-8 items-center relative z-10">
+          <div class="lg:col-span-7 space-y-6">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-electric-500/15 border border-electric-400/30 text-electric-400 text-xs font-bold tracking-wide">
+              <span class="w-2 h-2 rounded-full bg-gold-400 animate-ping"></span>
+              EKONOMI SMA/MA KELAS X • GAMIFICATION PLATFORM
+            </div>
+
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
+              ECONOVA <br/>
+              <span class="bg-gradient-to-r from-electric-400 via-blue-400 to-gold-400 bg-clip-text text-transparent text-2xl sm:text-3xl lg:text-4xl font-extrabold">
+                Explore, Play, and Learn Economics
+              </span>
+            </h1>
+
+            <p class="text-lg sm:text-xl font-bold text-gold-400">
+              "Belajar Ekonomi, Mainkan Tantangan, Raih Prestasi!"
+            </p>
+
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+              Platform edukasi digital interaktif untuk menguasai konsep <strong>Lembaga Jasa Keuangan, Otoritas Jasa Keuangan (OJK), dan Bank Sentral (Bank Indonesia)</strong>. Pelajari materinya, taklukkan tantangan kuis, kumpulkan XP, dan jadilah juara di papan peringkat kelas!
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-wrap gap-3 sm:gap-4 pt-2">
+              <button onclick="navigateTo('materi')"
+                class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-electric-500 to-blue-600 hover:from-electric-400 hover:to-blue-500 text-white font-bold shadow-lg electric-glow transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                <span>Mulai Belajar</span>
+              </button>
+
+              <button onclick="navigateTo('game')"
+                class="px-6 py-3.5 rounded-2xl bg-gold-400 hover:bg-gold-500 text-navy-950 font-extrabold shadow-lg gold-glow transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Mainkan Kuis</span>
+              </button>
+
+              <button onclick="navigateTo('leaderboard')"
+                class="px-6 py-3.5 rounded-2xl bg-navy-800 hover:bg-navy-700 text-white font-bold border border-slate-700 transition flex items-center gap-2">
+                <svg class="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                <span>Lihat Leaderboard</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Futurist Financial Vector Illustration -->
+          <div class="lg:col-span-5 flex justify-center">
+            <div class="relative w-full max-w-md animate-float">
+              <svg viewBox="0 0 420 340" class="w-full h-auto drop-shadow-2xl" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="gradCard" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#112240"/>
+                    <stop offset="100%" stop-color="#0a1428"/>
+                  </linearGradient>
+                  <linearGradient id="gradBlue" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#38bdf8"/>
+                    <stop offset="100%" stop-color="#0284c7"/>
+                  </linearGradient>
+                  <linearGradient id="gradGold" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#facc15"/>
+                    <stop offset="100%" stop-color="#eab308"/>
+                  </linearGradient>
+                </defs>
+                <!-- Background Glow Circle -->
+                <circle cx="210" cy="170" r="135" fill="#0ea5e9" fill-opacity="0.12" stroke="#38bdf8" stroke-opacity="0.3" stroke-dasharray="6 6"/>
+                <!-- Central Bank Pillars Building -->
+                <rect x="95" y="135" width="230" height="125" rx="16" fill="url(#gradCard)" stroke="#38bdf8" stroke-width="2"/>
+                <polygon points="210,75 80,135 340,135" fill="url(#gradBlue)"/>
+                <circle cx="210" cy="110" r="12" fill="url(#gradGold)"/>
+                <!-- Pillars -->
+                <rect x="120" y="150" width="22" height="85" rx="4" fill="#1d3557" stroke="#38bdf8" stroke-width="1.5"/>
+                <rect x="168" y="150" width="22" height="85" rx="4" fill="#1d3557" stroke="#38bdf8" stroke-width="1.5"/>
+                <rect x="230" y="150" width="22" height="85" rx="4" fill="#1d3557" stroke="#38bdf8" stroke-width="1.5"/>
+                <rect x="278" y="150" width="22" height="85" rx="4" fill="#1d3557" stroke="#38bdf8" stroke-width="1.5"/>
+                <!-- Base -->
+                <rect x="85" y="255" width="250" height="16" rx="8" fill="#38bdf8"/>
+                <!-- Floating Analytics Card Left -->
+                <rect x="25" y="55" width="120" height="65" rx="12" fill="#0a1428" stroke="#facc15" stroke-width="2"/>
+                <polyline points="40,100 62,82 84,90 110,68 130,74" stroke="#facc15" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="110" cy="68" r="4" fill="#facc15"/>
+                <!-- Floating Shield OJK Card Right -->
+                <rect x="280" y="45" width="115" height="68" rx="12" fill="#0a1428" stroke="#38bdf8" stroke-width="2"/>
+                <path d="M337 60 L355 67 V80 C355 91 347 99 337 103 C327 99 319 91 319 80 V67 L337 60 Z" fill="url(#gradBlue)"/>
+                <path d="M331 81 L335 85 L344 76" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Coin Badge -->
+                <circle cx="70" cy="240" r="26" fill="url(#gradGold)"/>
+                <text x="70" y="247" text-anchor="middle" fill="#050b18" font-weight="900" font-size="20" font-family="Inter">Rp</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform Live Statistics -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        <div class="glass-card rounded-2xl p-6 flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-electric-500/20 text-electric-400 flex items-center justify-center shrink-0">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div>
+            <div class="text-2xl sm:text-3xl font-black text-white" id="stat-players">128</div>
+            <div class="text-xs sm:text-sm text-slate-400 font-medium">Siswa Terdaftar Aktif</div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-6 flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-gold-400/20 text-gold-400 flex items-center justify-center shrink-0">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          </div>
+          <div>
+            <div class="text-2xl sm:text-3xl font-black text-white">3 Modul • 60+ Soal</div>
+            <div class="text-xs sm:text-sm text-slate-400 font-medium">Materi & Bank Soal Terkurasi</div>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-2xl p-6 flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+          </div>
+          <div>
+            <div class="text-2xl sm:text-3xl font-black text-white" id="stat-challenges">542</div>
+            <div class="text-xs sm:text-sm text-slate-400 font-medium">Tantangan Diselesaikan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Main Topics Preview -->
+      <div class="space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-electric-400">Kurikulum Ekonomi Kelas X</span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Tiga Pilar Utama Pembelajaran</h2>
+          </div>
+          <button onclick="navigateTo('materi')" class="text-sm font-bold text-electric-400 hover:text-gold-400 transition flex items-center gap-1">
+            <span>Buka Semua Modul</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Card Materi 1 -->
+          <div onclick="openMaterialDetail(0)" class="glass-card rounded-3xl p-6 hover:border-electric-400/60 transition cursor-pointer group flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-electric-400 flex items-center justify-center mb-5 group-hover:scale-110 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+              </div>
+              <div class="text-xs font-bold text-electric-400 mb-1">MATERI 1 • +50 XP</div>
+              <h3 class="text-xl font-extrabold text-white mb-2">Lembaga Jasa Keuangan</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Memahami peran lembaga keuangan bank (Bank Umum & BPR) serta nonbank (Asuransi, Pegadaian, Dana Pensiun, Perusahaan Pembiayaan) dalam perekonomian.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-electric-400">
+              <span>Pelajari Modul</span>
+              <span>→</span>
+            </div>
+          </div>
+
+          <!-- Card Materi 2 -->
+          <div onclick="openMaterialDetail(1)" class="glass-card rounded-3xl p-6 hover:border-gold-400/60 transition cursor-pointer group flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-gold-400/20 text-gold-400 flex items-center justify-center mb-5 group-hover:scale-110 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              <div class="text-xs font-bold text-gold-400 mb-1">MATERI 2 • +50 XP</div>
+              <h3 class="text-xl font-extrabold text-white mb-2">Otoritas Jasa Keuangan (OJK)</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Mengenal wasit industri keuangan Indonesia: latar belakang UU No. 21 Tahun 2011, fungsi pengawasan terintegrasi, dan perlindungan konsumen dari pinjol ilegal.
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-gold-400">
+              <span>Pelajari Modul</span>
+              <span>→</span>
+            </div>
+          </div>
+
+          <!-- Card Materi 3 -->
+          <div onclick="openMaterialDetail(2)" class="glass-card rounded-3xl p-6 hover:border-emerald-400/60 transition cursor-pointer group flex flex-col justify-between">
+            <div>
+              <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-5 group-hover:scale-110 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
+              </div>
+              <div class="text-xs font-bold text-emerald-400 mb-1">MATERI 3 • +50 XP</div>
+              <h3 class="text-xl font-extrabold text-white mb-2">Bank Sentral (Bank Indonesia)</h3>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                Mendalami kedudukan independen Bank Indonesia, tujuan menjaga stabilitas nilai rupiah, kebijakan moneter (BI-Rate), serta kelancaran sistem pembayaran (QRIS & BI-FAST).
+              </p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-bold text-emerald-400">
+              <span>Pelajari Modul</span>
+              <span>→</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Motivational Banner -->
+      <div class="rounded-3xl bg-gradient-to-r from-navy-800 via-blue-900/60 to-navy-800 border border-electric-400/30 p-6 sm:p-8 text-center">
+        <p class="text-base sm:text-xl font-bold text-white italic">
+          "Setiap tantangan adalah kesempatan untuk menjadi lebih cerdas dalam memahami dunia keuangan."
+        </p>
+        <p class="text-xs text-electric-400 font-semibold mt-2 uppercase tracking-widest">— ECONOVA Learning Philosophy</p>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 2: HALAMAN MATERI PEMBELAJARAN
+         ===================================================================== -->
+    <section id="view-materi" class="hidden tab-fade space-y-8">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-electric-400">Modul Interaktif Kelas X</span>
+          <h2 class="text-2xl sm:text-4xl font-black text-white mt-1">Pusat Materi Ekonomi</h2>
+        </div>
+
+        <!-- Tab Selector Materi -->
+        <div class="flex flex-wrap gap-2 bg-navy-900 p-1.5 rounded-2xl border border-slate-800">
+          <button onclick="selectMaterialTab(0)" id="mat-tab-0" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-electric-500 text-white transition">1. Lembaga Jasa Keuangan</button>
+          <button onclick="selectMaterialTab(1)" id="mat-tab-1" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition">2. Otoritas Jasa Keuangan</button>
+          <button onclick="selectMaterialTab(2)" id="mat-tab-2" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition">3. Bank Sentral (BI)</button>
+        </div>
+      </div>
+
+      <!-- Kontainer Konten Materi Dinamis -->
+      <div id="material-content-area" class="glass-card rounded-3xl p-6 sm:p-10 border border-electric-400/20">
+        <!-- Diisi oleh JavaScript renderMaterial() -->
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 3: GAME CENTER (ARENA PERMAINAN EDUKATIF)
+         ===================================================================== -->
+    <section id="view-game" class="hidden tab-fade space-y-8">
+      <!-- Game Lobby -->
+      <div id="game-lobby" class="space-y-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-gold-400">Gamification Arena</span>
+            <h2 class="text-2xl sm:text-4xl font-black text-white mt-1">ECONOVA Game Center</h2>
+            <p class="text-sm text-slate-300 mt-1">Pilih mode permainan, kumpulkan XP, dan raih bonus kecepatan menjawab!</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs bg-navy-900 px-4 py-2.5 rounded-xl border border-slate-800">
+            <span class="text-slate-400">Skor:</span>
+            <span class="text-emerald-400 font-bold">Benar +100 XP</span>
+            <span class="text-slate-600">•</span>
+            <span class="text-gold-400 font-bold">Cepat hingga +50 XP</span>
+          </div>
+        </div>
+
+        <!-- Filter Topik untuk Game -->
+        <div class="glass-card rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-electric-400">Pilih Topik Soal:</span>
+            <select id="game-topic-select" class="px-4 py-2 rounded-xl bg-navy-900 border border-slate-700 text-sm font-semibold text-white focus:outline-none focus:border-electric-400">
+              <option value="ALL">Semua Materi (Campuran)</option>
+              <option value="LJK">Materi 1: Lembaga Jasa Keuangan</option>
+              <option value="OJK">Materi 2: Otoritas Jasa Keuangan (OJK)</option>
+              <option value="BI">Materi 3: Bank Sentral (Bank Indonesia)</option>
+            </select>
+          </div>
+          <div class="text-xs text-slate-400">
+            Total Bank Soal Aktif: <strong class="text-white">60 Soal Terverifikasi</strong>
+          </div>
+        </div>
+
+        <!-- 5 Mode Permainan -->
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Mode A: Quick Quiz -->
+          <div class="glass-card rounded-3xl p-6 border border-electric-400/25 hover:border-electric-400 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 rounded-full bg-electric-500/20 text-electric-400 text-xs font-extrabold">MODE A</span>
+                <span class="text-xs font-bold text-gold-400">+100 XP Selesai</span>
+              </div>
+              <h3 class="text-xl font-black text-white mb-2">⚡ Quick Quiz</h3>
+              <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                Kuis pilihan ganda A, B, C, D berpacu dengan waktu 20 detik per soal. Dapatkan umpan balik pembahasan langsung dan bonus kecepatan!
+              </p>
+            </div>
+            <button onclick="startGame('QUICK_QUIZ')" class="w-full py-3 rounded-xl bg-electric-500 hover:bg-electric-400 text-white font-bold transition shadow-lg">
+              Mainkan Quick Quiz (8 Soal)
+            </button>
+          </div>
+
+          <!-- Mode B: True or False -->
+          <div class="glass-card rounded-3xl p-6 border border-emerald-400/25 hover:border-emerald-400 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-extrabold">MODE B</span>
+                <span class="text-xs font-bold text-gold-400">+100 XP Selesai</span>
+              </div>
+              <h3 class="text-xl font-black text-white mb-2">⚖️ True or False</h3>
+              <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                Uji ketelitian analisis ekonomimu! Tentukan apakah pernyataan seputar wewenang OJK, BI, dan produk keuangan itu BENAR atau SALAH dalam 15 detik.
+              </p>
+            </div>
+            <button onclick="startGame('TRUE_FALSE')" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow-lg">
+              Mainkan True or False (8 Soal)
+            </button>
+          </div>
+
+          <!-- Mode C: Matching Game -->
+          <div class="glass-card rounded-3xl p-6 border border-purple-400/25 hover:border-purple-400 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs font-extrabold">MODE C</span>
+                <span class="text-xs font-bold text-gold-400">+100 XP Selesai</span>
+              </div>
+              <h3 class="text-xl font-black text-white mb-2">🧩 Matching Game</h3>
+              <p class="text-sm text-slate-300 leading-relaxed mb-4">
+                Cocokkan istilah-istilah penting lembaga keuangan, instrumen moneter, dan regulasi OJK dengan definisi yang tepat secara interaktif.
+              </p>
+            </div>
+            <button onclick="startGame('MATCHING')" class="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold transition shadow-lg">
+              Mainkan Matching Game
+            </button>
+          </div>
+
+          <!-- Mode D: Challenge Mode -->
+          <div class="glass-card rounded-3xl p-6 border border-amber-400/25 hover:border-amber-400 transition flex flex-col justify-between md:col-span-2 lg:col-span-2">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-xs font-extrabold">MODE D • TIERED DIFFICULTY</span>
+                <span class="text-xs font-bold text-gold-400">Multiplier Poin Hingga 1.5x</span>
+              </div>
+              <h3 class="text-xl font-black text-white mb-2">🔥 Challenge Mode</h3>
+              <p class="text-sm text-slate-300 leading-relaxed mb-5">
+                Pilih level tantangan sesuai kesiapanmu. Semakin tinggi tingkat kesulitan, semakin banyak soal dan semakin besar bonus poin yang diraih!
+              </p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button onclick="startGame('CHALLENGE_EASY')" class="py-3 px-4 rounded-xl bg-navy-800 hover:bg-emerald-600/30 border border-emerald-500/40 text-white font-bold text-sm transition">
+                🟢 Easy (5 Soal)
+              </button>
+              <button onclick="startGame('CHALLENGE_MEDIUM')" class="py-3 px-4 rounded-xl bg-navy-800 hover:bg-amber-600/30 border border-amber-500/40 text-white font-bold text-sm transition">
+                🟡 Medium (10 Soal)
+              </button>
+              <button onclick="startGame('CHALLENGE_HARD')" class="py-3 px-4 rounded-xl bg-navy-800 hover:bg-rose-600/30 border border-rose-500/40 text-white font-bold text-sm transition">
+                🔴 Hard (15 Soal • 1.5x XP)
+              </button>
+            </div>
+          </div>
+
+          <!-- Mode E: Final Boss -->
+          <div class="rounded-3xl p-6 bg-gradient-to-br from-navy-800 via-indigo-950 to-navy-900 border-2 border-gold-400/60 gold-glow flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="px-3 py-1 rounded-full bg-gold-400 text-navy-950 text-xs font-black">MODE E • UJIAN AKHIR</span>
+                <span class="text-xs font-black text-gold-400">+300 XP BONUS</span>
+              </div>
+              <h3 class="text-xl font-black text-white mb-2">👑 FINAL BOSS</h3>
+              <p class="text-sm text-slate-200 leading-relaxed mb-4">
+                Tantangan puncak menggabungkan 20 soal komprehensif dari seluruh materi (LJK, OJK, dan Bank Sentral) untuk meraih gelar <strong>Economics Master</strong>!
+              </p>
+            </div>
+            <button onclick="startGame('FINAL_BOSS')" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-gold-400 to-amber-500 hover:from-gold-300 hover:to-amber-400 text-navy-950 font-black transition shadow-lg">
+              Tantang Final Boss (20 Soal)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Game Stage (Quiz / TrueFalse / Challenge / Final Boss) -->
+      <div id="game-stage" class="hidden max-w-3xl mx-auto">
+        <div class="glass-card rounded-3xl p-6 sm:p-8 border border-electric-400/30 shadow-2xl space-y-6">
+          <!-- Top Bar Status -->
+          <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <div>
+              <span id="stage-mode-badge" class="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-electric-500/20 text-electric-400">QUICK QUIZ</span>
+              <div class="text-sm font-bold text-slate-300 mt-1">Pertanyaan <span id="stage-q-num" class="text-white">1</span> dari <span id="stage-q-total" class="text-white">8</span></div>
+            </div>
+
+            <!-- Timer Bar -->
+            <div class="flex items-center gap-3">
+              <div class="text-right">
+                <div class="text-[11px] text-slate-400 uppercase font-bold">Sisa Waktu</div>
+                <div id="stage-timer-text" class="text-xl font-black text-gold-400">20s</div>
+              </div>
+              <div class="text-right pl-4 border-l border-slate-800">
+                <div class="text-[11px] text-slate-400 uppercase font-bold">Skor Sesi</div>
+                <div id="stage-score-text" class="text-xl font-black text-emerald-400">0 XP</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress Timer Visual -->
+          <div class="w-full h-2.5 bg-navy-950 rounded-full overflow-hidden">
+            <div id="stage-timer-bar" class="h-full bg-gradient-to-r from-electric-400 to-gold-400 transition-all duration-200" style="width: 100%"></div>
+          </div>
+
+          <!-- Question Text -->
+          <div class="py-2">
+            <span id="stage-topic-pill" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Topik: Otoritas Jasa Keuangan</span>
+            <h3 id="stage-question-text" class="text-lg sm:text-2xl font-bold text-white mt-2 leading-snug">
+              Memuat pertanyaan...
+            </h3>
+          </div>
+
+          <!-- Options Container -->
+          <div id="stage-options-container" class="grid grid-cols-1 gap-3">
+            <!-- Diisi dinamis -->
+          </div>
+
+          <!-- Instant Feedback & Explanation Box -->
+          <div id="stage-feedback-box" class="hidden rounded-2xl p-4 sm:p-5 border">
+            <div class="flex items-center gap-2 font-black text-base mb-1" id="stage-feedback-title"></div>
+            <p class="text-sm text-slate-200 leading-relaxed" id="stage-feedback-exp"></p>
+            <div class="mt-4 flex justify-end">
+              <button onclick="nextQuestion()" id="stage-next-btn" class="px-6 py-2.5 rounded-xl bg-electric-500 hover:bg-electric-400 text-white font-bold text-sm transition">
+                Soal Berikutnya →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Matching Game Stage -->
+      <div id="matching-stage" class="hidden max-w-4xl mx-auto">
+        <div class="glass-card rounded-3xl p-6 sm:p-8 border border-purple-400/30 space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <div>
+              <span class="text-xs font-extrabold uppercase px-3 py-1 rounded-full bg-purple-500/20 text-purple-400">MATCHING GAME</span>
+              <h3 class="text-lg sm:text-xl font-bold text-white mt-1">Pasangkan Istilah Ekonomi dengan Pengertiannya</h3>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-sm font-bold text-slate-300">Cocok: <span id="match-count" class="text-emerald-400">0</span>/6</div>
+              <div class="text-sm font-bold text-gold-400" id="match-score">0 XP</div>
+              <button onclick="exitToLobby()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300">Keluar</button>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-400">Klik satu kartu <strong>Istilah (Kiri)</strong> lalu klik pasangan <strong>Pengertian (Kanan)</strong> yang sesuai.</p>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div id="match-terms-col" class="space-y-3"></div>
+            <div id="match-defs-col" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Result Summary Modal/Card -->
+      <div id="game-result-stage" class="hidden max-w-2xl mx-auto">
+        <div class="glass-card rounded-3xl p-8 text-center border border-gold-400/40 space-y-6">
+          <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-gold-400 to-amber-500 text-navy-950 flex items-center justify-center shadow-xl">
+            <svg class="w-11 h-11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+          </div>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-gold-400">Tantangan Selesai!</span>
+            <h3 class="text-3xl font-black text-white mt-1" id="res-title">Luar Biasa!</h3>
+            <p class="text-sm text-slate-300 mt-1" id="res-subtitle">Skor kamu telah dicatat ke database & papan peringkat.</p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 bg-navy-950/80 p-4 rounded-2xl border border-slate-800">
+            <div>
+              <div class="text-xs text-slate-400">Total XP Diraih</div>
+              <div class="text-2xl font-black text-gold-400 mt-0.5" id="res-xp">+0 XP</div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400">Jawaban Benar</div>
+              <div class="text-2xl font-black text-emerald-400 mt-0.5" id="res-correct">0/0</div>
+            </div>
+            <div>
+              <div class="text-xs text-slate-400">Akurasi</div>
+              <div class="text-2xl font-black text-electric-400 mt-0.5" id="res-accuracy">0%</div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap justify-center gap-3 pt-2">
+            <button onclick="exitToLobby()" class="px-6 py-3 rounded-xl bg-electric-500 hover:bg-electric-400 text-white font-bold transition">
+              Mainkan Mode Lain
+            </button>
+            <button onclick="navigateTo('leaderboard')" class="px-6 py-3 rounded-xl bg-gold-400 hover:bg-gold-500 text-navy-950 font-extrabold transition">
+              Lihat Peringkatku
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 4: LEADERBOARD (PAPAN PERINGKAT SISWA)
+         ===================================================================== -->
+    <section id="view-leaderboard" class="hidden tab-fade space-y-8">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-gold-400">Live Hall of Fame</span>
+          <h2 class="text-2xl sm:text-4xl font-black text-white mt-1">Papan Peringkat ECONOVA</h2>
+          <p class="text-sm text-slate-300 mt-1">Peringkat diperbarui secara otomatis berdasarkan akumulasi XP dan akurasi jawaban.</p>
+        </div>
+        <button onclick="refreshLeaderboard()" class="px-4 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 border border-electric-400/30 text-xs font-bold text-electric-400 flex items-center gap-2 self-start">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Segarkan Peringkat</span>
+        </button>
+      </div>
+
+      <!-- Top 3 Podium -->
+      <div id="podium-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-end pt-4">
+        <!-- Diisi oleh JS renderLeaderboard() -->
+      </div>
+
+      <!-- Full Leaderboard Table -->
+      <div class="glass-card rounded-3xl overflow-hidden border border-slate-800">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-navy-900/90 border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-400">
+                <th class="py-4 px-5 font-bold">Peringkat</th>
+                <th class="py-4 px-5 font-bold">Nama Pemain</th>
+                <th class="py-4 px-5 font-bold">Kelas</th>
+                <th class="py-4 px-5 font-bold">Level & Gelar</th>
+                <th class="py-4 px-5 font-bold text-center">Kuis Selesai</th>
+                <th class="py-4 px-5 font-bold text-center">Akurasi</th>
+                <th class="py-4 px-5 font-bold text-right">Total XP</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-table-body" class="divide-y divide-slate-800/70 text-sm">
+              <!-- Diisi dinamis -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 5: PROFIL PEMAIN (DASHBOARD PRIBADI)
+         ===================================================================== -->
+    <section id="view-profil" class="hidden tab-fade space-y-8">
+      <div class="glass-card rounded-3xl p-6 sm:p-10 border border-electric-400/25">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-800">
+          <div class="flex items-center gap-4 sm:gap-5">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-electric-500 to-blue-700 flex items-center justify-center text-white font-black text-2xl sm:text-3xl shadow-xl" id="prof-avatar">
+              ?
+            </div>
+            <div>
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <h2 class="text-2xl sm:text-3xl font-black text-white" id="prof-name">Belum Masuk</h2>
+                <span class="px-3 py-1 rounded-full bg-electric-500/20 text-electric-400 text-xs font-bold" id="prof-class">Kelas -</span>
+              </div>
+              <p class="text-sm font-bold text-gold-400 mt-1" id="prof-rank-title">Level 1 • Financial Beginner</p>
+              <p class="text-xs text-slate-400 mt-1">Peringkat Leaderboard: <strong class="text-white" id="prof-leaderboard-rank">#-</strong></p>
+            </div>
+          </div>
+
+          <button onclick="openIdentityModal()" class="px-5 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 border border-slate-700 text-xs font-bold text-white self-start">
+            Ganti / Edit Identitas
+          </button>
+        </div>
+
+        <!-- XP Progress Bar -->
+        <div class="py-6 border-b border-slate-800 space-y-2">
+          <div class="flex justify-between text-xs font-bold">
+            <span class="text-slate-300">Progress Menuju Level Berikutnya</span>
+            <span class="text-gold-400" id="prof-xp-progress-text">0 / 300 XP</span>
+          </div>
+          <div class="w-full h-3.5 bg-navy-950 rounded-full overflow-hidden p-0.5 border border-slate-800">
+            <div id="prof-xp-bar" class="h-full rounded-full bg-gradient-to-r from-electric-500 via-blue-400 to-gold-400 transition-all duration-500" style="width: 10%"></div>
+          </div>
+        </div>
+
+        <!-- Quick Metrics -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 py-6 border-b border-slate-800">
+          <div class="bg-navy-900/70 p-4 rounded-2xl border border-slate-800">
+            <div class="text-xs text-slate-400">Total XP</div>
+            <div class="text-2xl font-black text-gold-400 mt-1" id="prof-total-xp">0</div>
+          </div>
+          <div class="bg-navy-900/70 p-4 rounded-2xl border border-slate-800">
+            <div class="text-xs text-slate-400">Permainan Selesai</div>
+            <div class="text-2xl font-black text-white mt-1" id="prof-games-played">0</div>
+          </div>
+          <div class="bg-navy-900/70 p-4 rounded-2xl border border-slate-800">
+            <div class="text-xs text-slate-400">Materi Dipelajari</div>
+            <div class="text-2xl font-black text-electric-400 mt-1" id="prof-materials-count">0 / 3</div>
+          </div>
+          <div class="bg-navy-900/70 p-4 rounded-2xl border border-slate-800">
+            <div class="text-xs text-slate-400">Badge Terkumpul</div>
+            <div class="text-2xl font-black text-emerald-400 mt-1" id="prof-badges-count">1 / 5</div>
+          </div>
+        </div>
+
+        <!-- Koleksi Badge -->
+        <div class="py-6 border-b border-slate-800 space-y-4">
+          <h3 class="text-base font-extrabold text-white">Koleksi Badge & Penghargaan</h3>
+          <div id="prof-badges-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <!-- Diisi oleh JS -->
+          </div>
+        </div>
+
+        <!-- Riwayat Permainan -->
+        <div class="pt-6 space-y-4">
+          <h3 class="text-base font-extrabold text-white">Riwayat Aktivitas & Permainan Terakhir</h3>
+          <div id="prof-history-list" class="space-y-2.5">
+            <!-- Diisi oleh JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SECTION 6: TENTANG PLATFORM
+         ===================================================================== -->
+    <section id="view-tentang" class="hidden tab-fade space-y-8">
+      <div class="glass-card rounded-3xl p-6 sm:p-10 border border-electric-400/20 space-y-6">
+        <span class="text-xs font-bold uppercase tracking-widest text-electric-400">Tentang Platform</span>
+        <h2 class="text-2xl sm:text-4xl font-black text-white">ECONOVA – Explore, Play, and Learn Economics</h2>
+        <p class="text-slate-300 leading-relaxed text-sm sm:text-base">
+          <strong>ECONOVA</strong> adalah platform pembelajaran Ekonomi berbasis gamifikasi (<em>Gamification-Based Learning</em>) yang dirancang khusus untuk peserta didik SMA/MA Kelas X pada Capaian Pembelajaran <strong>Lembaga Jasa Keuangan, Otoritas Jasa Keuangan (OJK), dan Bank Sentral (Bank Indonesia)</strong>.
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-6 pt-2">
+          <div class="bg-navy-900/80 p-6 rounded-2xl border border-slate-800 space-y-2">
+            <h3 class="text-lg font-extrabold text-electric-400">🎯 Tujuan Pembelajaran</h3>
+            <ul class="text-sm text-slate-300 space-y-2 list-disc list-inside">
+              <li>Menjelaskan pengertian, fungsi, dan jenis lembaga jasa keuangan bank dan nonbank di Indonesia.</li>
+              <li>Menganalisis tujuan, fungsi, tugas, dan wewenang Otoritas Jasa Keuangan (OJK) serta perlindungan konsumen.</li>
+              <li>Mendeskripsikan peran Bank Indonesia sebagai Bank Sentral dalam menjaga stabilitas nilai rupiah, kebijakan moneter, dan sistem pembayaran.</li>
+            </ul>
+          </div>
+
+          <div class="bg-navy-900/80 p-6 rounded-2xl border border-slate-800 space-y-2">
+            <h3 class="text-lg font-extrabold text-gold-400">🏆 Sistem Poin & Gamifikasi</h3>
+            <ul class="text-sm text-slate-300 space-y-2 list-disc list-inside">
+              <li><strong>Menyelesaikan 1 Modul Materi:</strong> +50 XP</li>
+              <li><strong>Setiap Jawaban Benar:</strong> +100 XP (ditambah bonus kecepatan hingga +50 XP)</li>
+              <li><strong>Menyelesaikan 1 Sesi Game:</strong> +100 XP</li>
+              <li><strong>Menaklukkan Final Boss:</strong> +300 XP & Badge <em>Economics Master</em></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800/80 bg-navy-950/90 py-8 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <div class="flex items-center gap-2">
+        <span class="font-black text-white">ECONOVA</span>
+        <span>• Platform Edukasi Ekonomi Kelas X SMA/MA</span>
+      </div>
+      <div>Referensi Kurikulum Merdeka, Otoritas Jasa Keuangan (OJK), & Bank Indonesia (BI)</div>
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       JAVASCRIPT ENGINE: MATERI, BANK SOAL 60+, GAME ENGINE, & APPS SCRIPT BRIDGE
+       ========================================================================= -->
+  <script>
+    /**
+     * 1. DATA MATERI PEMBELAJARAN LENGKAP (3 MODUL UTAMA)
+     */
+    const MATERIALS_DATA = [
+      {
+        id: 'MATERI_1',
+        badge: 'MODUL 1 • SISTEM KEUANGAN',
+        title: 'Lembaga Jasa Keuangan di Indonesia',
+        objectives: [
+          'Menjelaskan pengertian, fungsi, dan peran strategis lembaga jasa keuangan dalam perekonomian.',
+          'Mengidentifikasi jenis lembaga keuangan bank (Bank Umum dan BPR) beserta produknya.',
+          'Menguraikan jenis lembaga keuangan nonbank (Asuransi, Pegadaian, Dana Pensiun, Perusahaan Pembiayaan) dan perbedaannya dengan bank.'
+        ],
+        sections: [
+          {
+            heading: 'A. Pengertian dan Fungsi Lembaga Jasa Keuangan',
+            body: 'Lembaga Jasa Keuangan (LJK) adalah badan usaha yang menghimpun dana dari masyarakat dalam bentuk simpanan dan menyalurkannya kembali kepada masyarakat dalam bentuk kredit/pembiayaan atau produk keuangan lainnya. Fungsi utamanya adalah sebagai <strong>perantara keuangan (financial intermediary)</strong> yang mempertemukan pihak kelebihan dana (surplus unit) dengan pihak yang membutuhkan dana (deficit unit).'
+          },
+          {
+            heading: 'B. Lembaga Keuangan Bank (Bank Umum & BPR)',
+            body: 'Berdasarkan UU Perbankan, bank adalah badan usaha yang menghimpun dana dari masyarakat dalam bentuk simpanan dan menyalurkannya dalam bentuk kredit untuk meningkatkan taraf hidup rakyat. Terbagi menjadi dua jenis utama:<br>• <strong>Bank Umum:</strong> Bank yang melaksanakan kegiatan usaha secara konvensional dan/atau berdasarkan prinsip syariah yang dalam kegiatannya <em>memberikan jasa dalam lalu lintas pembayaran</em> (contoh: BRI, Mandiri, BCA, BSI).<br>• <strong>Bank Perekonomian Rakyat (BPR):</strong> Bank yang melaksanakan kegiatan usaha secara konvensional atau syariah yang <em>tidak memberikan jasa dalam lalu lintas pembayaran</em> (tidak menerbitkan cek/giro maupun transaksi valuta asing), fokus melayani UMKM dan masyarakat pedesaan.'
+          },
+          {
+            heading: 'C. Lembaga Keuangan Nonbank (LKBB)',
+            body: 'Lembaga keuangan yang menghimpun dana secara tidak langsung (bukan berupa tabungan/giro) dan menyalurkannya untuk pembiayaan khusus:<br>• <strong>Perusahaan Asuransi:</strong> Lembaga pengalih dan pengelola risiko melalui pembayaran premi oleh tertanggung kepada penanggung (contoh: Jasa Raharja, Prudential, BPJS).<br>• <strong>Pegadaian:</strong> Lembaga pembiayaan yang menyalurkan pinjaman dengan jaminan barang bergerak berdasarkan hukum gadai (contoh: PT Pegadaian).<br>• <strong>Dana Pensiun:</strong> Badan hukum yang mengelola dan menjalankan program yang menjanjikan manfaat pensiun bagi pekerja di hari tua (contoh: Taspen, DPLK).<br>• <strong>Perusahaan Pembiayaan (Multifinance):</strong> Badan usaha yang melakukan kegiatan pembiayaan untuk pengadaan barang dan/atau jasa seperti kredit kendaraan bermotor atau sewa guna usaha/leasing (contoh: Adira Finance, FIF).'
+          }
+        ],
+        comparisonTable: [
+          ['Aspek Pembeda', 'Lembaga Keuangan Bank', 'Lembaga Keuangan Nonbank'],
+          ['Penghimpunan Dana', 'Langsung dari masyarakat (Tabungan, Giro, Deposito)', 'Tidak langsung (Premi, Iuran Pensiun, Surat Berharga)'],
+          ['Lalu Lintas Pembayaran', 'Dapat menciptakan uang giral & jasa pembayaran (Bank Umum)', 'Tidak memberikan jasa lalu lintas pembayaran'],
+          ['Jaminan Pinjaman', 'Umumnya mensyaratkan agunan fisik/kelayakan usaha', 'Bervariasi (gadai barang, objek leasing, atau tanpa agunan)']
+        ],
+        dailyExample: '<strong>Contoh dalam Kehidupan Sehari-hari:</strong> Orang tua menabung gaji bulanan di Bank Mandiri (Bank Umum), membayar premi asuransi kesehatan agar terlindungi saat sakit, serta mencicil sepeda motor melalui perusahaan pembiayaan (leasing). Seluruh aktivitas ini menggerakkan roda ekonomi masyarakat.',
+        summary: 'Lembaga Jasa Keuangan berperan vital sebagai perantara keuangan yang terdiri dari Lembaga Keuangan Bank (Bank Umum & BPR) dan Lembaga Keuangan Nonbank (Asuransi, Pegadaian, Dana Pensiun, Multifinance) yang mendorong pertumbuhan ekonomi dan kesejahteraan masyarakat.'
+      },
+      {
+        id: 'MATERI_2',
+        badge: 'MODUL 2 • PENGAWASAN & REGULASI',
+        title: 'Otoritas Jasa Keuangan (OJK)',
+        objectives: [
+          'Memahami pengertian dan latar belakang historis pembentukan OJK berdasarkan UU No. 21 Tahun 2011.',
+          'Menjelaskan tujuan, fungsi, tugas, dan wewenang OJK dalam mengawasi sektor jasa keuangan.',
+          'Menganalisis peran OJK dalam perlindungan konsumen serta perbedaannya dengan Bank Indonesia.'
+        ],
+        sections: [
+          {
+            heading: 'A. Pengertian dan Latar Belakang Pembentukan OJK',
+            body: '<strong>Otoritas Jasa Keuangan (OJK)</strong> adalah lembaga negara yang independen dan bebas dari campur tangan pihak lain, yang mempunyai fungsi, tugas, dan wewenang pengaturan, pengawasan, pemeriksaan, dan penyidikan terhadap keseluruhan kegiatan di dalam sektor jasa keuangan.<br><strong>Latar Belakang:</strong> OJK dibentuk berdasarkan <strong>UU No. 21 Tahun 2011</strong> karena semakin kompleksnya produk keuangan lintas sektor (konglomerasi keuangan), perlunya pengawasan yang terintegrasi (menggantikan peran Bapepam-LK untuk pasar modal/IKNB serta mengambil alih pengawasan perbankan dari Bank Indonesia sejak 31 Desember 2013), serta kebutuhan meningkatkan perlindungan konsumen.'
+          },
+          {
+            heading: 'B. Tujuan, Fungsi, dan Tugas Utama OJK',
+            body: 'OJK dibentuk dengan tujuan agar keseluruhan kegiatan di dalam sektor jasa keuangan:<br>1. Terselenggara secara <strong>teratur, adil, transparan, dan akuntabel</strong>.<br>2. Mampu mewujudkan sistem keuangan yang <strong>tumbuh secara berkelanjutan dan stabil</strong>.<br>3. Mampu <strong>melindungi kepentingan konsumen dan masyarakat</strong>.<br><strong>Tugas Pengawasan OJK meliputi 3 sektor:</strong> (1) Sektor Perbankan, (2) Sektor Pasar Modal, dan (3) Sektor Industri Keuangan Nonbank (IKNB) seperti asuransi, dana pensiun, lembaga pembiayaan, dan fintech lending (pinjol legal).'
+          },
+          {
+            heading: 'C. Perlindungan Konsumen & Perbedaan OJK vs Bank Indonesia',
+            body: 'OJK menyediakan layanan edukasi dan pengaduan konsumen (Kontak OJK 157) serta memberantas investasi bodong dan pinjaman online ilegal melalui Satgas PASTI.<br><strong>Perbedaan Kunci:</strong> <strong>OJK</strong> fokus pada <em>pengawasan mikroprudensial</em> (kesehatan individu bank, pasar modal, asuransi, dan perlindungan konsumen), sedangkan <strong>Bank Indonesia (BI)</strong> fokus pada <em>kebijakan moneter, sistem pembayaran, dan stabilitas makroprudensial</em>.'
+          }
+        ],
+        comparisonTable: [
+          ['Aspek Pembeda', 'Otoritas Jasa Keuangan (OJK)', 'Bank Indonesia (BI)'],
+          ['Fokus Utama', 'Mengatur & mengawasi lembaga jasa keuangan (Bank, Pasar Modal, IKNB)', 'Menjaga stabilitas nilai rupiah, moneter, & sistem pembayaran'],
+          ['Jenis Pengawasan', 'Mikroprudensial (kesehatan tiap institusi keuangan)', 'Makroprudensial (stabilitas sistem keuangan secara keseluruhan)'],
+          ['Perlindungan Publik', 'Edukasi & perlindungan konsumen sektor jasa keuangan', 'Perlindungan konsumen khusus penyelenggara sistem pembayaran']
+        ],
+        dailyExample: '<strong>Contoh Kasus Nyata:</strong> Ketika marak penawaran pinjaman online (pinjol) ilegal dengan bunga mencekik dan teror penagihan, OJK bersama Satgas PASTI memblokir aplikasi ilegal tersebut dan mengedukasi masyarakat agar mengecek legalitas lembaga keuangan melalui WhatsApp resmi OJK (081-157-157-157).',
+        summary: 'OJK merupakan otoritas independen pengawas seluruh sektor jasa keuangan (perbankan, pasar modal, dan IKNB) yang bertugas mewujudkan industri keuangan yang sehat, stabil, serta melindungi kepentingan konsumen dari praktik keuangan ilegal.'
+      },
+      {
+        id: 'MATERI_3',
+        badge: 'MODUL 3 • KEBIJAKAN MONETER',
+        title: 'Bank Sentral (Bank Indonesia)',
+        objectives: [
+          'Menjelaskan pengertian bank sentral dan kedudukan Bank Indonesia dalam sistem ketatanegaraan RI.',
+          'Menguraikan tujuan tunggal dan tiga pilar tugas utama Bank Indonesia.',
+          'Menganalisis instrumen kebijakan moneter dan peran BI dalam kelancaran sistem pembayaran.'
+        ],
+        sections: [
+          {
+            heading: 'A. Pengertian Bank Sentral dan Kedudukan Bank Indonesia',
+            body: '<strong>Bank Sentral</strong> adalah lembaga negara yang memiliki wewenang untuk mengeluarkan alat pembayaran yang sah dari suatu negara, merumuskan dan melaksanakan kebijakan moneter, mengatur dan menjaga kelancaran sistem pembayaran, mengatur dan mengawasi perbankan (kini mikroprudensial di OJK), serta menjalankan fungsi sebagai <em>lender of the last resort</em>.<br>Di Indonesia, fungsi bank sentral dijalankan oleh <strong>Bank Indonesia (BI)</strong> yang merupakan lembaga negara independen (bebas dari campur tangan pemerintah maupun pihak lain) sesuai UU No. 23 Tahun 1999 jo. UU No. 4 Tahun 2023 (UU P2SK).'
+          },
+          {
+            heading: 'B. Tujuan dan Tiga Pilar Tugas Bank Indonesia',
+            body: '<strong>Tujuan Tunggal BI:</strong> Mencapai dan memelihara <strong>kestabilan nilai rupiah</strong>, yang mencakup dua dimensi: (1) Kestabilan terhadap harga barang dan jasa (tercermin dari laju <strong>inflasi</strong> yang rendah dan stabil), dan (2) Kestabilan terhadap mata uang negara lain (<strong>nilai tukar/kurs</strong> rupiah).<br><strong>Tiga Pilar Tugas BI:</strong><br>1. Menetapkan dan melaksanakan <strong>kebijakan moneter</strong>.<br>2. Mengatur dan menjaga kelancaran <strong>sistem pembayaran</strong> (tunai dan nontunai).<br>3. Menjaga <strong>stabilitas sistem keuangan</strong> melalui kebijakan makroprudensial.'
+          },
+          {
+            heading: 'C. Kebijakan Moneter dan Sistem Pembayaran',
+            body: 'Untuk mengendalikan jumlah uang beredar dan inflasi, BI menggunakan instrumen <strong>Kebijakan Moneter</strong> seperti:<br>• <strong>Operasi Pasar Terbuka (OPT):</strong> Menjual/membeli surat berharga (SBI/SBN).<br>• <strong>Fasilitas Diskonto (BI-Rate):</strong> Menaikkan suku bunga acuan saat inflasi tinggi (kebijakan uang ketat/kontraktif) atau menurunkannya saat ekonomi lesu (kebijakan uang longgar/ekspansif).<br>• <strong>Giro Wajib Minimum (GWM):</strong> Mengatur cadangan kas minimum bank umum di BI.<br>Di bidang <strong>Sistem Pembayaran</strong>, BI berwenang mencetak dan mengedarkan uang Rupiah serta mengembangkan infrastruktur nontunai seperti <strong>QRIS, BI-FAST, dan BI-RTGS</strong>.'
+          }
+        ],
+        comparisonTable: [
+          ['Aspek Pembeda', 'Bank Indonesia (Bank Sentral)', 'Bank Umum'],
+          ['Tujuan Utama', 'Menjaga kestabilan nilai rupiah (tidak mencari laba)', 'Mencari keuntungan (profit oriented) bagi pemegang saham'],
+          ['Hak Cetak Uang', 'Memiliki hak tunggal (hak oktroi) mencetak uang kartal', 'Tidak berhak mencetak uang kartal (hanya uang giral)'],
+          ['Nasabah Utama', 'Pemerintah dan lembaga perbankan (Bank of Banks)', 'Masyarakat umum, perusahaan, dan pelaku usaha']
+        ],
+        dailyExample: '<strong>Contoh dalam Kehidupan Sehari-hari:</strong> Saat kamu membayar jajanan di kantin menggunakan scan <strong>QRIS</strong>, atau saat orang tuamu mentransfer uang antarbank dengan biaya admin hanya Rp2.500 melalui <strong>BI-FAST</strong>, itu adalah hasil inovasi pengaturan sistem pembayaran oleh Bank Indonesia.',
+        summary: 'Bank Indonesia adalah bank sentral yang independen dengan tujuan utama menjaga stabilitas nilai rupiah (inflasi dan kurs) melalui kebijakan moneter, pengaturan sistem pembayaran tunai maupun nontunai (QRIS), serta pengawasan makroprudensial.'
+      }
+    ];
+
+    /**
+     * 2. BANK SOAL TERINTEGRASI (60 PERTANYAAN: 20 LJK, 20 OJK, 20 BANK SENTRAL)
+     * Tipe soal: 'MCQ' (Pilihan Ganda) dan 'TF' (True / False)
+     */
+    const QUESTION_BANK = [
+      // ==================== MATERI 1: LEMBAGA JASA KEUANGAN (20 SOAL) ====================
+      { id: 1, topic: 'LJK', type: 'MCQ', q: 'Fungsi utama lembaga jasa keuangan dalam perekonomian adalah sebagai perantara keuangan (financial intermediary), yaitu...', options: ['Mencetak uang kartal untuk pemerintah', 'Menghimpun dana dari pihak surplus dan menyalurkannya kepada pihak defisit', 'Mengawasi seluruh transaksi perdagangan internasional', 'Menetapkan tarif pajak penghasilan badan usaha'], ans: 1, exp: 'Financial intermediary berarti menjembatani pihak yang kelebihan dana (penabung/investor) dengan pihak yang membutuhkan dana (peminjam/pengusaha).' },
+      { id: 2, topic: 'LJK', type: 'MCQ', q: 'Perbedaan mendasar antara Bank Umum dan Bank Perekonomian Rakyat (BPR) terletak pada...', options: ['BPR boleh beroperasi di luar negeri sedangkan Bank Umum tidak', 'Bank Umum memberikan jasa dalam lalu lintas pembayaran, sedangkan BPR tidak', 'BPR dapat menerbitkan kartu kredit dan cek', 'Bank Umum tidak diperbolehkan menyalurkan kredit UMKM'], ans: 1, exp: 'Sesuai UU Perbankan, BPR dilarang menerima simpanan giro, melakukan kegiatan valuta asing, serta tidak memberikan jasa dalam lalu lintas pembayaran.' },
+      { id: 3, topic: 'LJK', type: 'MCQ', q: 'Lembaga keuangan nonbank yang memberikan pinjaman kepada masyarakat dengan jaminan barang bergerak berdasarkan hukum gadai adalah...', options: ['Dana Pensiun', 'Perusahaan Modal Ventura', 'Pegadaian', 'Bank Perkreditan Rakyat'], ans: 2, exp: 'Pegadaian menyalurkan kredit berdasarkan hukum gadai dengan jaminan barang bergerak seperti emas, kendaraan, atau barang elektronik.' },
+      { id: 4, topic: 'LJK', type: 'MCQ', q: 'Ibu Rina membayar sejumlah uang setiap bulan kepada perusahaan keuangan agar mendapatkan pertanggungan biaya apabila terjadi risiko kecelakaan atau sakit. Produk yang digunakan Ibu Rina adalah...', options: ['Leasing', 'Anjak Piutang', 'Asuransi', 'Reksa Dana'], ans: 2, exp: 'Asuransi adalah perjanjian pengalihan risiko dari tertanggung kepada penanggung dengan pembayaran premi secara berkala.' },
+      { id: 5, topic: 'LJK', type: 'MCQ', q: 'Berikut ini yang termasuk kelompok Lembaga Keuangan Nonbank (IKNB) di Indonesia adalah...', options: ['BRI, BNI, dan Bank Mandiri', 'Pegadaian, Dana Pensiun, dan Perusahaan Pembiayaan', 'Bank Indonesia dan BPR', 'Bank Syariah Indonesia dan Bank Jateng'], ans: 1, exp: 'Pegadaian, Dana Pensiun, Perusahaan Pembiayaan (Multifinance), dan Asuransi merupakan bagian dari Industri Keuangan Nonbank (IKNB).' },
+      { id: 6, topic: 'LJK', type: 'MCQ', q: 'Simpanan di bank yang penarikannya dapat dilakukan setiap saat dengan menggunakan cek, bilyet giro, atau perintah pemindahbukuan disebut...', options: ['Deposito berjangka', 'Simpanan giro', 'Tabungan pelajar', 'Sertifikat deposito'], ans: 1, exp: 'Simpanan giro (demand deposit) adalah simpanan yang penarikannya fleksibel menggunakan instrumen cek atau bilyet giro.' },
+      { id: 7, topic: 'LJK', type: 'MCQ', q: 'Perusahaan pembiayaan (multifinance) yang menyediakan fasilitas pembiayaan barang modal kepada penyewa guna usaha dengan hak opsi membeli barang tersebut dikenal dengan kegiatan...', options: ['Sewa guna usaha (Leasing)', 'Anjak piutang (Factoring)', 'Kartu kredit', 'Modal ventura'], ans: 0, exp: 'Leasing (sewa guna usaha) adalah kegiatan pembiayaan dalam bentuk penyediaan barang modal untuk digunakan penyewa dalam jangka waktu tertentu.' },
+      { id: 8, topic: 'LJK', type: 'MCQ', q: 'Lembaga yang mengelola dan menjalankan program yang menjanjikan manfaat hari tua bagi para pekerja setelah purnatugas adalah...', options: ['Perusahaan Asuransi Kerugian', 'Dana Pensiun', 'Perusahaan Sekuritas', 'Koperasi Simpan Pinjam'], ans: 1, exp: 'Dana Pensiun menghimpun iuran selama masa kerja untuk dibayarkan sebagai manfaat pensiun saat peserta memasuki usia pensiun.' },
+      { id: 9, topic: 'LJK', type: 'MCQ', q: 'Simpanan berjangka yang penarikannya hanya dapat dilakukan pada waktu tertentu berdasarkan perjanjian nasabah dengan bank (misalnya 1, 3, 6, atau 12 bulan) disebut...', options: ['Giro', 'Tabungan', 'Deposito', 'Kredit Rekening Koran'], ans: 2, exp: 'Deposito berjangka memiliki jatuh tempo tetap dan umumnya menawarkan suku bunga lebih tinggi dibanding tabungan biasa.' },
+      { id: 10, topic: 'LJK', type: 'MCQ', q: 'Peran penting lembaga jasa keuangan dalam mendorong pertumbuhan ekonomi masyarakat adalah...', options: ['Mengurangi jumlah barang yang beredar di pasar', 'Menyalurkan pembiayaan modal kerja bagi UMKM sehingga membuka lapangan kerja', 'Menghapus seluruh kewajiban pembayaran bunga kredit', 'Menetapkan harga maksimum kebutuhan pokok'], ans: 1, exp: 'Penyaluran kredit produktif dan pembiayaan UMKM meningkatkan kapasitas produksi usaha dan menciptakan lapangan kerja baru.' },
+      { id: 11, topic: 'LJK', type: 'MCQ', q: 'Jenis lembaga keuangan yang melakukan penyertaan modal ke dalam suatu perusahaan pasangan usaha (startup/UMKM) untuk jangka waktu tertentu disebut...', options: ['Perusahaan Modal Ventura', 'Pegadaian Syariah', 'Bank Kustodian', 'BPR'], ans: 0, exp: 'Modal ventura (venture capital) berfokus pada penyertaan modal pada perusahaan rintisan atau perusahaan yang memiliki potensi pertumbuhan tinggi.' },
+      { id: 12, topic: 'LJK', type: 'MCQ', q: 'Salah satu kegiatan usaha yang DILARANG dilakukan oleh Bank Perekonomian Rakyat (BPR) adalah...', options: ['Menghimpun dana dalam bentuk tabungan', 'Menyalurkan kredit kepada pelaku usaha kecil', 'Melakukan kegiatan usaha dalam valuta asing dan asuransi', 'Menempatkan dana dalam bentuk Sertifikat Bank Indonesia'], ans: 2, exp: 'BPR dilarang melakukan transaksi valuta asing, menerima simpanan giro, serta melakukan penyertaan modal atau usaha perasuransian.' },
+      { id: 13, topic: 'LJK', type: 'MCQ', q: 'Uang yang dibayarkan secara rutin oleh nasabah (tertanggung) kepada perusahaan asuransi sebagai imbalan atas perlindungan risiko disebut...', options: ['Dividen', 'Premi', 'Kupon', 'Agunan'], ans: 1, exp: 'Premi asuransi adalah kewajiban finansial yang dibayarkan pemegang polis agar mendapatkan jaminan ganti rugi saat terjadi risiko.' },
+      { id: 14, topic: 'LJK', type: 'MCQ', q: 'Tempat bertemunya pihak yang membutuhkan dana jangka panjang (emiten) dengan pihak yang memiliki kelebihan dana (investor) melalui instrumen saham dan obligasi adalah...', options: ['Pasar Uang', 'Pasar Modal', 'Pasar Komoditas', 'Pasar Valuta Asing'], ans: 1, exp: 'Pasar modal (seperti Bursa Efek Indonesia) memperdagangkan instrumen keuangan jangka panjang seperti saham, obligasi, dan reksa dana.' },
+      { id: 15, topic: 'LJK', type: 'TF', q: 'Bank Perekonomian Rakyat (BPR) diperbolehkan menerbitkan cek dan bilyet giro untuk mempermudah transaksi giral nasabahnya.', options: ['BENAR', 'SALAH'], ans: 1, exp: 'SALAH. BPR tidak memberikan jasa dalam lalu lintas pembayaran sehingga dilarang menerima simpanan giro maupun menerbitkan cek.' },
+      { id: 16, topic: 'LJK', type: 'TF', q: 'Perusahaan asuransi, pegadaian, dan dana pensiun termasuk dalam kategori Lembaga Keuangan Nonbank.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. Ketiganya menghimpun dana masyarakat tidak dalam bentuk tabungan/giro perbankan, melainkan melalui premi, gadai, dan iuran pensiun.' },
+      { id: 17, topic: 'LJK', type: 'TF', q: 'Fungsi intermediasi keuangan membantu menggerakkan dana menganggur di masyarakat menjadi modal produktif bagi dunia usaha.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. Melalui mekanisme penghimpunan dan penyaluran dana, dana masyarakat dapat dimanfaatkan untuk investasi dan produksi.' },
+      { id: 18, topic: 'LJK', type: 'TF', q: 'Deposito berjangka dapat ditarik sewaktu-waktu melalui mesin ATM tanpa terkena penalti atau ketentuan jatuh tempo.', options: ['BENAR', 'SALAH'], ans: 1, exp: 'SALAH. Deposito memiliki jangka waktu jatuh tempo tertentu; penarikan sebelum jatuh tempo biasanya dikenakan biaya penalti.' },
+      { id: 19, topic: 'LJK', type: 'TF', q: 'PT Pegadaian memberikan pinjaman kepada masyarakat dengan mensyaratkan jaminan berupa barang bergerak seperti emas atau kendaraan.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. Ciri khas usaha pegadaian adalah penyaluran kredit jangka pendek dengan jaminan barang bergerak yang diserahkan kepada pegadaian.' },
+      { id: 20, topic: 'LJK', type: 'TF', q: 'Lembaga keuangan bank dan nonbank memiliki cara penghimpunan dana yang sama persis, yaitu melalui rekening tabungan harian.', options: ['BENAR', 'SALAH'], ans: 1, exp: 'SALAH. Hanya bank yang menghimpun dana langsung berupa tabungan, giro, dan deposito; lembaga nonbank tidak diperbolehkan menerima simpanan tabungan.' },
+
+      // ==================== MATERI 2: OTORITAS JASA KEUANGAN (20 SOAL) ====================
+      { id: 21, topic: 'OJK', type: 'MCQ', q: 'Otoritas Jasa Keuangan (OJK) dibentuk berdasarkan landasan hukum...', options: ['UU No. 23 Tahun 1999', 'UU No. 21 Tahun 2011', 'UU No. 10 Tahun 1998', 'UU No. 7 Tahun 2021'], ans: 1, exp: 'OJK secara resmi dibentuk berdasarkan Undang-Undang Nomor 21 Tahun 2011 tentang Otoritas Jasa Keuangan.' },
+      { id: 22, topic: 'OJK', type: 'MCQ', q: 'Salah satu latar belakang utama dibentuknya OJK di Indonesia adalah...', options: ['Menghapus seluruh bank swasta nasional', 'Kebutuhan pengawasan sektor jasa keuangan yang terintegrasi dan independen', 'Menggantikan fungsi Kementerian Keuangan dalam menyusun APBN', 'Mengambil alih hak pencetakan uang Rupiah'], ans: 1, exp: 'Kompleksitas produk keuangan lintas sektor (konglomerasi keuangan) menuntut adanya lembaga pengawas terintegrasi untuk perbankan, pasar modal, dan IKNB.' },
+      { id: 23, topic: 'OJK', type: 'MCQ', q: 'Sektor jasa keuangan yang berada di bawah pengaturan dan pengawasan OJK meliputi...', options: ['Perbankan, Pasar Modal, dan Industri Keuangan Nonbank (IKNB)', 'Perbankan, Perpajakan, dan Bea Cukai', 'Kebijakan Moneter, Sistem Pembayaran, dan APBN', 'Perdagangan Ekspor, Impor, dan BUMN'], ans: 0, exp: 'OJK mengawasi tiga sektor utama industri keuangan: Perbankan, Pasar Modal, dan Industri Keuangan Nonbank (asuransi, dana pensiun, pembiayaan, fintech).' },
+      { id: 24, topic: 'OJK', type: 'MCQ', q: 'Pengalihan fungsi pengaturan dan pengawasan perbankan dari Bank Indonesia kepada OJK mulai berlaku efektif sejak tanggal...', options: ['17 Agustus 2011', '31 Desember 2012', '31 Desember 2013', '1 Januari 2015'], ans: 2, exp: 'Pengawasan pasar modal & IKNB beralih ke OJK pada 31 Desember 2012, sedangkan pengawasan perbankan beralih dari BI ke OJK pada 31 Desember 2013.' },
+      { id: 25, topic: 'OJK', type: 'MCQ', q: 'Tujuan pembentukan OJK adalah agar keseluruhan kegiatan di dalam sektor jasa keuangan terselenggara secara...', options: ['Tertutup, sentralistik, dan menguntungkan negara', 'Teratur, adil, transparan, dan akuntabel', 'Bebas tanpa aturan agar investasi cepat masuk', 'Monopolistik di bawah satu bank BUMN'], ans: 1, exp: 'Pasal 4 UU OJK menyebutkan tujuan OJK mewujudkan sektor jasa keuangan yang teratur, adil, transparan, akuntabel, berkelanjutan, stabil, dan melindungi konsumen.' },
+      { id: 26, topic: 'OJK', type: 'MCQ', q: 'Dalam menjalankan tugas perlindungan konsumen, OJK memiliki wewenang untuk...', options: ['Menetapkan tingkat suku bunga acuan moneter', 'Memberikan edukasi, pelayanan pengaduan konsumen, dan pembelaan hukum', 'Mencetak uang pecahan baru saat hari raya', 'Menentukan kurs rupiah terhadap dolar AS'], ans: 1, exp: 'OJK melindungi konsumen melalui edukasi literasi keuangan, layanan pengaduan (Kontak 157), hingga pembelaan hukum untuk kepentingan konsumen.' },
+      { id: 27, topic: 'OJK', type: 'MCQ', q: 'Perbedaan ruang lingkup pengawasan antara OJK dan Bank Indonesia yang tepat adalah...', options: ['OJK mengawasi makroprudensial, BI mengawasi mikroprudensial', 'OJK mengawasi kesehatan individu lembaga keuangan (mikroprudensial), BI menjaga stabilitas moneter & makroprudensial', 'OJK mengawasi bank asing, BI mengawasi bank daerah', 'OJK mencetak uang logam, BI mencetak uang kertas'], ans: 1, exp: 'OJK fokus pada pengawasan mikroprudensial (tingkat kesehatan bank/asuransi/pasar modal), sedangkan BI fokus pada stabilitas makroprudensial, moneter, dan sistem pembayaran.' },
+      { id: 28, topic: 'OJK', type: 'MCQ', q: 'Sifat kelembagaan OJK menurut undang-undang adalah independen, yang berarti...', options: ['Tidak perlu melaporkan kinerjanya kepada siapa pun', 'Bebas dari campur tangan pihak lain kecuali untuk hal-hal yang secara tegas diatur undang-undang', 'Berada di bawah kendali penuh bank-bank swasta', 'Dapat mengubah undang-undang dasar secara sepihak'], ans: 1, exp: 'Independensi OJK menjamin objektivitas pengawasan tanpa intervensi politik atau kepentingan bisnis pihak tertentu.' },
+      { id: 29, topic: 'OJK', type: 'MCQ', q: 'Andi menerima pesan SMS berisi tautan pinjaman online cepat cair tanpa syarat yang ternyata tidak terdaftar resmi. Lembaga yang berwenang memblokir dan menindak entitas keuangan ilegal bersama Satgas PASTI adalah...', options: ['Otoritas Jasa Keuangan (OJK)', 'Badan Pemeriksa Keuangan (BPK)', 'Lembaga Penjamin Simpanan (LPS)', 'Kementerian Perdagangan'], ans: 0, exp: 'OJK memimpin Satgas Pemberantasan Aktivitas Keuangan Ilegal (Satgas PASTI) untuk memberantas pinjol ilegal dan investasi bodong.' },
+      { id: 30, topic: 'OJK', type: 'MCQ', q: 'Wewenang OJK dalam bidang pengaturan dan pengawasan kelembagaan bank meliputi...', options: ['Pemberian izin pendirian bank, pembukaan kantor cabang, dan pencabutan izin usaha bank', 'Penetapan cadangan devisa negara', 'Pengelolaan kas negara dan APBN', 'Penentuan tarif bea masuk barang impor'], ans: 0, exp: 'OJK berwenang memberikan izin usaha pendirian bank, merger, konsolidasi, hingga mencabut izin usaha bank yang bermasalah.' },
+      { id: 31, topic: 'OJK', type: 'MCQ', q: 'Berikut ini yang BUKAN merupakan wewenang OJK adalah...', options: ['Melakukan pemeriksaan terhadap perusahaan asuransi', 'Menetapkan kebijakan moneter melalui Operasi Pasar Terbuka', 'Mengawasi perdagangan saham di Bursa Efek Indonesia', 'Memberikan sanksi administratif kepada lembaga keuangan yang melanggar aturan'], ans: 1, exp: 'Operasi Pasar Terbuka merupakan instrumen kebijakan moneter yang menjadi wewenang mutlak Bank Indonesia, bukan OJK.' },
+      { id: 32, topic: 'OJK', type: 'MCQ', q: 'Layanan pengaduan resmi yang disediakan OJK bagi masyarakat yang mengalami sengketa dengan lembaga keuangan dapat diakses melalui nomor...', options: ['112', '157', '14045', '119'], ans: 1, exp: 'Kontak OJK 157 (atau WhatsApp 081-157-157-157) adalah kanal resmi layanan informasi dan pengaduan konsumen sektor jasa keuangan.' },
+      { id: 33, topic: 'OJK', type: 'MCQ', q: 'Sumber pembiayaan operasional OJK berasal dari...', options: ['Sumbangan sukarela masyarakat', 'APBN dan pungutan dari pihak yang melakukan kegiatan di sektor jasa keuangan', 'Keuntungan jual beli valuta asing', 'Pajak pertambahan nilai (PPN)'], ans: 1, exp: 'Sesuai UU OJK, anggaran OJK bersumber dari APBN dan/atau pungutan dari industri jasa keuangan yang diawasi.' },
+      { id: 34, topic: 'OJK', type: 'MCQ', q: 'Prinsip "2L" yang selalu dikampanyekan OJK kepada masyarakat sebelum berinvestasi atau meminjam dana adalah...', options: ['Lancar dan Lunas', 'Legal dan Logis', 'Lama dan Lengkap', 'Lokal dan Luas'], ans: 1, exp: 'OJK mengedukasi masyarakat mengecek 2L: Legal (memiliki izin resmi dari otoritas) dan Logis (imbal hasil/bunga masuk akal).' },
+      { id: 35, topic: 'OJK', type: 'TF', q: 'Bank Indonesia merupakan lembaga yang mengawasi seluruh perusahaan asuransi dan dana pensiun di Indonesia.', options: ['BENAR', 'SALAH'], ans: 1, exp: 'SALAH. Pengawasan perusahaan asuransi, dana pensiun, dan seluruh Industri Keuangan Nonbank (IKNB) merupakan tugas dan wewenang OJK.' },
+      { id: 36, topic: 'OJK', type: 'TF', q: 'OJK memiliki wewenang melakukan penyidikan terhadap tindak pidana di sektor jasa keuangan.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. Sesuai Pasal 9 UU No. 21 Tahun 2011, OJK berwenang melakukan pengawasan, pemeriksaan, penyidikan, dan perlindungan konsumen.' },
+      { id: 37, topic: 'OJK', type: 'TF', q: 'Sebelum OJK berdiri, pengawasan pasar modal dan lembaga keuangan nonbank dilakukan oleh Bapepam-LK.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. Bapepam-LK (Badan Pengawas Pasar Modal dan Lembaga Keuangan) dilebur ke dalam OJK pada akhir tahun 2012.' },
+      { id: 38, topic: 'OJK', type: 'TF', q: 'OJK berada di bawah naungan bank-bank BUMN sehingga tidak dapat memberikan sanksi kepada bank milik pemerintah.', options: ['BENAR', 'SALAH'], ans: 1, exp: 'SALAH. OJK adalah lembaga negara independen yang mengawasi dan berwenang memberi sanksi kepada seluruh bank, baik bank BUMN maupun swasta.' },
+      { id: 39, topic: 'OJK', type: 'TF', q: 'Salah satu tujuan pembentukan OJK adalah melindungi kepentingan konsumen dan masyarakat di sektor jasa keuangan.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. Perlindungan konsumen merupakan salah satu dari tiga pilar tujuan utama pembentukan OJK dalam UU No. 21 Tahun 2011.' },
+      { id: 40, topic: 'OJK', type: 'TF', q: 'Fintech peer-to-peer lending (pinjaman online) yang resmi di Indonesia diatur dan diawasi oleh OJK.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. Penyelenggara layanan pendanaan bersama berbasis teknologi informasi (LPBBTI/fintech lending) diawasi ketat oleh OJK.' },
+
+      // ==================== MATERI 3: BANK SENTRAL / BANK INDONESIA (20 SOAL) ====================
+      { id: 41, topic: 'BI', type: 'MCQ', q: 'Tujuan tunggal (single objective) Bank Indonesia sebagaimana diamanatkan undang-undang adalah...', options: ['Mencari keuntungan sebesar-besarnya bagi negara', 'Mencapai dan memelihara kestabilan nilai rupiah', 'Menyalurkan kredit perumahan bagi masyarakat', 'Mengatur tarif pajak ekspor dan impor'], ans: 1, exp: 'Tujuan utama Bank Indonesia adalah mencapai dan memelihara kestabilan nilai rupiah (kestabilan harga/inflasi dan nilai tukar/kurs).' },
+      { id: 42, topic: 'BI', type: 'MCQ', q: 'Kestabilan nilai rupiah yang dijaga oleh Bank Indonesia mengandung dua aspek utama, yaitu...', options: ['Kestabilan harga barang/jasa (inflasi) dan kestabilan nilai tukar (kurs) terhadap mata uang asing', 'Kestabilan harga saham dan harga emas dunia', 'Kestabilan suku bunga kredit dan jumlah penduduk', 'Kestabilan ekspor migas dan impor beras'], ans: 0, exp: 'Stabilitas nilai rupiah diukur dari laju inflasi yang terkendali (stabilitas internal) dan nilai tukar rupiah terhadap mata uang asing (stabilitas eksternal).' },
+      { id: 43, topic: 'BI', type: 'MCQ', q: 'Berikut ini merupakan tiga pilar tugas utama Bank Indonesia, KECUALI...', options: ['Menetapkan dan melaksanakan kebijakan moneter', 'Mengatur dan menjaga kelancaran sistem pembayaran', 'Menjaga stabilitas sistem keuangan (makroprudensial)', 'Mengawasi kesehatan individual perusahaan asuransi'], ans: 3, exp: 'Pengawasan individual perusahaan asuransi (mikroprudensial) adalah tugas OJK, bukan Bank Indonesia.' },
+      { id: 44, topic: 'BI', type: 'MCQ', q: 'Ketika laju inflasi di Indonesia meningkat tajam akibat terlalu banyak uang beredar, kebijakan moneter yang dapat diambil Bank Indonesia adalah...', options: ['Menurunkan suku bunga acuan (BI-Rate)', 'Menaikkan suku bunga acuan (BI-Rate) dan menjual surat berharga', 'Menurunkan Giro Wajib Minimum (GWM) perbankan', 'Mencetak uang baru dalam jumlah besar'], ans: 1, exp: 'Menaikkan BI-Rate dan menjual surat berharga (kebijakan moneter kontraktif) menarik uang beredar kembali ke bank sehingga menekan inflasi.' },
+      { id: 45, topic: 'BI', type: 'MCQ', q: 'Hak eksklusif yang diberikan negara kepada Bank Indonesia untuk mencetak dan mengedarkan uang Rupiah disebut...', options: ['Hak Angket', 'Hak Oktroi', 'Hak Prerogatif', 'Hak Imunitas'], ans: 1, exp: 'Hak Oktroi adalah hak tunggal yang dimiliki Bank Sentral untuk mencetak dan mengedarkan uang kartal (kertas dan logam) sebagai alat pembayaran yang sah.' },
+      { id: 46, topic: 'BI', type: 'MCQ', q: 'Instrumen kebijakan moneter Bank Indonesia yang dilakukan dengan cara menjual atau membeli Surat Berharga Negara (SBN) di pasar uang disebut...', options: ['Politik Diskonto', 'Operasi Pasar Terbuka (OPT)', 'Cadangan Kas Minimum', 'Kredit Selektif'], ans: 1, exp: 'Operasi Pasar Terbuka (OPT) adalah transaksi jual beli surat berharga oleh bank sentral untuk memengaruhi likuiditas uang beredar.' },
+      { id: 47, topic: 'BI', type: 'MCQ', q: 'Inovasi sistem pembayaran nontunai yang diluncurkan Bank Indonesia untuk menyatukan berbagai kode QR penyelenggara jasa pembayaran menjadi satu standar nasional adalah...', options: ['BI-RTGS', 'QRIS (Quick Response Code Indonesian Standard)', 'SKNBI', 'GPN'], ans: 1, exp: 'QRIS merupakan standar kode QR nasional yang dikembangkan Bank Indonesia bersama ASPI agar transaksi digital lebih cepat, mudah, dan aman.' },
+      { id: 48, topic: 'BI', type: 'MCQ', q: 'Peran Bank Indonesia sebagai "Lender of the Last Resort" (LoLR) memiliki arti...', options: ['Bank Indonesia menjadi tempat terakhir bagi bank umum yang mengalami kesulitan likuiditas jangka pendek', 'Bank Indonesia memberikan pinjaman modal usaha langsung kepada pedagang pasar', 'Bank Indonesia menanggung seluruh utang pribadi warga negara', 'Bank Indonesia menjadi satu-satunya bank yang boleh menerima tabungan pelajar'], ans: 0, exp: 'Sebagai Lender of the Last Resort, BI dapat memberikan fasilitas pembiayaan darurat jangka pendek kepada bank yang mengalami masalah likuiditas sistemik.' },
+      { id: 49, topic: 'BI', type: 'MCQ', q: 'Kebijakan Bank Indonesia yang mewajibkan setiap bank umum menyimpan sebagian dana pihak ketiga dalam bentuk saldo rekening giro di Bank Indonesia disebut...', options: ['Giro Wajib Minimum (GWM)', 'Fasilitas Diskonto', 'Imbauan Moral (Moral Suasion)', 'Kebijakan Fiskal'], ans: 0, exp: 'Giro Wajib Minimum (GWM) atau reserve requirement adalah rasio simpanan minimum yang wajib dipelihara bank umum di BI.' },
+      { id: 50, topic: 'BI', type: 'MCQ', q: 'Perbedaan kedudukan antara Bank Indonesia dengan Bank Umum (seperti BRI atau BCA) adalah...', options: ['Bank Indonesia bertujuan memelihara stabilitas moneter tanpa mencari laba, sedangkan Bank Umum berorientasi mencari keuntungan', 'Bank Indonesia melayani tabungan masyarakat umum, sedangkan Bank Umum tidak', 'Bank Umum berhak mencetak uang rupiah, sedangkan Bank Indonesia tidak', 'Bank Indonesia berada di bawah pengawasan Bank Umum'], ans: 0, exp: 'Bank Indonesia adalah lembaga negara nirlaba penjaga stabilitas moneter, sedangkan Bank Umum adalah badan usaha yang mencari keuntungan.' },
+      { id: 51, topic: 'BI', type: 'MCQ', q: 'Infrastruktur sistem pembayaran ritel nasional dari Bank Indonesia yang memfasilitasi transfer dana antarbank secara real-time 24/7 dengan biaya terjangkau adalah...', options: ['BI-FAST', 'Bursa Efek', 'OJK Mobile', 'LPS Care'], ans: 0, exp: 'BI-FAST adalah infrastruktur sistem pembayaran ritel nasional yang melayani transfer dana secara seketika (real-time) setiap saat.' },
+      { id: 52, topic: 'BI', type: 'MCQ', q: 'Ketika perekonomian mengalami kelesuan (resesi) dan daya beli masyarakat menurun, Bank Indonesia dapat menerapkan kebijakan moneter ekspansif dengan cara...', options: ['Menaikkan BI-Rate secara drastis', 'Menurunkan BI-Rate dan membeli surat berharga di pasar terbuka', 'Menaikkan cadangan wajib minimum bank', 'Menghentikan penyaluran kredit perbankan'], ans: 1, exp: 'Menurunkan suku bunga acuan dan membeli surat berharga menambah likuiditas uang beredar sehingga mendorong kredit dan aktivitas ekonomi.' },
+      { id: 53, topic: 'BI', type: 'MCQ', q: 'Dalam sistem pembayaran tunai, tugas Bank Indonesia mencakup seluruh tahapan pengelolaan uang Rupiah berikut, KECUALI...', options: ['Perencanaan dan pencetakan', 'Pengeluaran dan pengedaran', 'Pencabutan, penarikan, dan pemusnahan uang lusuh', 'Penetapan tarif pajak penghasilan atas gaji'], ans: 3, exp: 'Pengelolaan uang Rupiah oleh BI mencakup perencanaan, pencetakan, pengeluaran, pengedaran, pencabutan, dan pemusnahan uang tidak layak edar.' },
+      { id: 54, topic: 'BI', type: 'MCQ', q: 'Kebijakan Bank Indonesia untuk mencegah dan mengurangi risiko sistemik pada sistem keuangan secara keseluruhan disebut...', options: ['Kebijakan Mikroprudensial', 'Kebijakan Makroprudensial', 'Kebijakan Anggaran Defisit', 'Kebijakan Perdagangan Bebas'], ans: 1, exp: 'Kebijakan makroprudensial BI bertujuan memelihara stabilitas sistem keuangan secara keseluruhan dan mencegah krisis sistemik.' },
+      { id: 55, topic: 'BI', type: 'TF', q: 'Bank Indonesia merupakan bagian dari kementerian di bawah Presiden sehingga kebijakannya dapat diintervensi langsung oleh pemerintah.', options: ['BENAR', 'SALAH'], ans: 1, exp: 'SALAH. Bank Indonesia adalah lembaga negara yang independen dan bebas dari campur tangan pemerintah maupun pihak lain dalam melaksanakan tugasnya.' },
+      { id: 56, topic: 'BI', type: 'TF', q: 'QRIS dan BI-FAST merupakan produk inovasi pengaturan sistem pembayaran nontunai yang dikembangkan oleh Bank Indonesia.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. Kedua layanan tersebut adalah bagian dari Blueprint Sistem Pembayaran Indonesia (BSPI) yang dikelola Bank Indonesia.' },
+      { id: 57, topic: 'BI', type: 'TF', q: 'Menaikkan suku bunga acuan (BI-Rate) bertujuan untuk mengurangi jumlah uang beredar ketika inflasi sedang tinggi.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. Suku bunga yang lebih tinggi mendorong masyarakat menabung dan menahan laju kredit sehingga jumlah uang beredar terkendali.' },
+      { id: 58, topic: 'BI', type: 'TF', q: 'Masyarakat umum dapat datang langsung ke kantor Bank Indonesia untuk membuka rekening tabungan harian dan mengajukan KPR rumah.', options: ['BENAR', 'SALAH'], ans: 1, exp: 'SALAH. Bank Indonesia bertindak sebagai "Bank of Banks" (banknya para bank) dan tidak melayani rekening tabungan maupun kredit individu masyarakat umum.' },
+      { id: 59, topic: 'BI', type: 'TF', q: 'Uang kertas yang sudah lusuh, sobek, atau tidak layak edar dapat ditukarkan di layanan kas keliling Bank Indonesia untuk kemudian dimusnahkan.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. BI menerapkan kebijakan clean money policy dengan menarik dan memusnahkan uang tidak layak edar serta menggantinya dengan uang baru.' },
+      { id: 60, topic: 'BI', type: 'TF', q: 'Salah satu dimensi kestabilan nilai rupiah yang dijaga Bank Indonesia adalah kestabilan nilai tukar rupiah terhadap mata uang negara lain.', options: ['BENAR', 'SALAH'], ans: 0, exp: 'BENAR. Kestabilan nilai rupiah meliputi kestabilan harga barang/jasa (inflasi) dan kestabilan nilai tukar rupiah (kurs).' }
+    ];
+
+    /**
+     * 3. DATA PASANGAN UNTUK MATCHING GAME
+     */
+    const MATCHING_PAIRS = [
+      { id: 'm1', topic: 'OJK', term: 'Otoritas Jasa Keuangan (OJK)', def: 'Mengatur dan mengawasi sektor perbankan, pasar modal, dan IKNB.' },
+      { id: 'm2', topic: 'BI', term: 'Bank Indonesia (BI)', def: 'Menjaga stabilitas nilai rupiah, kebijakan moneter, dan sistem pembayaran.' },
+      { id: 'm3', topic: 'LJK', term: 'PT Pegadaian', def: 'Memberikan layanan pembiayaan dengan jaminan barang bergerak.' },
+      { id: 'm4', topic: 'LJK', term: 'Bank Perekonomian Rakyat (BPR)', def: 'Bank yang tidak memberikan jasa dalam lalu lintas pembayaran (giro/cek).' },
+      { id: 'm5', topic: 'BI', term: 'Operasi Pasar Terbuka', def: 'Instrumen moneter dengan menjual atau membeli surat berharga negara.' },
+      { id: 'm6', topic: 'OJK', term: 'Satgas PASTI & Kontak 157', def: 'Perlindungan konsumen dan pemberantasan pinjaman online ilegal.' },
+      { id: 'm7', topic: 'LJK', term: 'Perusahaan Asuransi', def: 'Lembaga pengalih risiko melalui pembayaran premi oleh tertanggung.' },
+      { id: 'm8', topic: 'BI', term: 'QRIS & BI-FAST', def: 'Infrastruktur digital sistem pembayaran nontunai nasional dari BI.' },
+      { id: 'm9', topic: 'LJK', term: 'Dana Pensiun', def: 'Mengelola iuran pekerja untuk memberikan manfaat penghasilan hari tua.' }
+    ];
+
+    const ALL_BADGES = [
+      { name: 'Financial Beginner', desc: 'Bergabung & memulai petualangan ECONOVA', icon: '🌱' },
+      { name: 'Smart Investor', desc: 'Mencapai 300 XP atau menyelesaikan 2 game', icon: '💎' },
+      { name: 'OJK Explorer', desc: 'Menuntaskan Modul OJK atau meraih 700 XP', icon: '🛡️' },
+      { name: 'Monetary Expert', desc: 'Menuntaskan Modul BI atau meraih 1.200 XP', icon: '🏛️' },
+      { name: 'Economics Master', desc: 'Menaklukkan Final Boss atau meraih 1.800 XP', icon: '👑' }
+    ];
+
+    /**
+     * 4. STATE APLIKASI & SINKRONISASI BACKEND (GOOGLE APPS SCRIPT + LOCAL FALLBACK)
+     */
+    let currentPlayer = null;
+    let leaderboardCache = [];
+    let currentMaterialIndex = 0;
+
+    // Game State
+    let activeGame = {
+      mode: '',
+      topic: 'ALL',
+      questions: [],
+      currentIndex: 0,
+      score: 0,
+      correctCount: 0,
+      timer: null,
+      timeLeft: 20,
+      maxTime: 20,
+      answered: false,
+      sessionToken: ''
+    };
+
+    // Matching State
+    let matchState = {
+      selectedTerm: null,
+      matchedIds: new Set(),
+      pairs: [],
+      score: 0,
+      attempts: 0,
+      sessionToken: ''
+    };
+
+    // Deteksi apakah berjalan di dalam Google Apps Script Web App
+    const isGAS = typeof google !== 'undefined' && google.script && google.script.run;
+
+    // Inisialisasi saat halaman dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+      renderMaterial(0);
+      loadInitialData();
+      
+      // Cek sesi pemain yang tersimpan selama tab aktif
+      const savedPlayer = sessionStorage.getItem('econova_player');
+      if (savedPlayer) {
+        try {
+          currentPlayer = JSON.parse(savedPlayer);
+          updatePlayerUI();
+        } catch (e) {
+          openIdentityModal();
+        }
+      } else {
+        // Munculkan modal identitas setelah jeda singkat agar siswa melihat hero terlebih dahulu
+        setTimeout(() => {
+          if (!currentPlayer) openIdentityModal();
+        }, 800);
+      }
+    });
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-emerald-950/95 border-emerald-400 text-emerald-100',
+        error: 'bg-rose-950/95 border-rose-400 text-rose-100',
+        gold: 'bg-amber-950/95 border-gold-400 text-amber-100',
+        info: 'bg-navy-900/95 border-electric-400 text-white'
+      };
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-xl text-xs sm:text-sm font-semibold flex items-center gap-2.5 transform transition-all duration-300 translate-x-4 opacity-0 ${colors[type] || colors.info}`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-x-4', 'opacity-0');
+      });
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-x-4');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    /**
+     * 5. NAVIGASI HALAMAN
+     */
+    function navigateTo(viewId) {
+      const views = ['home', 'materi', 'game', 'leaderboard', 'profil', 'tentang'];
+      views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        if (el) el.classList.add('hidden');
+      });
+
+      const target = document.getElementById(`view-${viewId}`);
+      if (target) target.classList.remove('hidden');
+
+      // Update active nav styling
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.nav === viewId) {
+          btn.className = 'nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-white bg-electric-500/20 border border-electric-400/30 transition';
+        } else {
+          btn.className = 'nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition';
+        }
+      });
+
+      if (viewId === 'leaderboard') refreshLeaderboard();
+      if (viewId === 'profil') renderProfileDashboard();
+      if (viewId === 'game') exitToLobby();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMobileMenu() {
+      document.getElementById('mobile-menu').classList.toggle('hidden');
+    }
+
+    /**
+     * 6. MANAJEMEN IDENTITAS PEMAIN & INTEGRASI GOOGLE SHEETS
+     */
+    function openIdentityModal() {
+      const modal = document.getElementById('identity-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      if (currentPlayer) {
+        document.getElementById('input-fullname').value = currentPlayer.fullName || '';
+        document.getElementById('input-class').value = currentPlayer.className || '';
+        document.getElementById('input-absent').value = currentPlayer.absentNo !== '-' ? currentPlayer.absentNo : '';
+      }
+    }
+
+    function closeIdentityModal() {
+      const modal = document.getElementById('identity-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function handleIdentitySubmit(e) {
+      e.preventDefault();
+      const fullName = document.getElementById('input-fullname').value.trim();
+      const className = document.getElementById('input-class').value.trim();
+      const absentNo = document.getElementById('input-absent').value.trim() || '-';
+
+      if (!fullName || !className) {
+        showToast('Harap isi Nama Lengkap dan Kelas terlebih dahulu.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-submit-identity');
+      btn.disabled = true;
+      btn.innerHTML = '<span>Menghubungkan ke Database...</span>';
+
+      if (isGAS) {
+        google.script.run
+          .withSuccessHandler((profile) => {
+            btn.disabled = false;
+            btn.innerHTML = '<span>Simpan & Mulai Petualangan</span>';
+            currentPlayer = profile;
+            sessionStorage.setItem('econova_player', JSON.stringify(currentPlayer));
+            updatePlayerUI();
+            closeIdentityModal();
+            showToast(`Selamat datang, ${currentPlayer.fullName}!`, 'success');
+            refreshLeaderboard();
+          })
+          .withFailureHandler((err) => {
+            btn.disabled = false;
+            btn.innerHTML = '<span>Simpan & Mulai Petualangan</span>';
+            showToast('Gagal terhubung ke server: ' + err.message, 'error');
+          })
+          .loginOrRegisterPlayer({ fullName, className, absentNo });
+      } else {
+        // Mode Simulasi Mandiri jika dibuka langsung di luar Google Apps Script
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerHTML = '<span>Simpan & Mulai Petualangan</span>';
+          const key = fullName.toLowerCase().replace(/\s+/g, '_') + '__' + className.toLowerCase();
+          const existing = leaderboardCache.find(p => p.playerId === key);
+          currentPlayer = existing ? {
+            ...existing,
+            absentNo,
+            completedMaterials: currentPlayer?.completedMaterials || [],
+            badges: currentPlayer?.badges || ['Financial Beginner'],
+            history: currentPlayer?.history || []
+          } : {
+            playerId: key,
+            fullName,
+            className,
+            absentNo,
+            totalXP: 0,
+            level: 1,
+            rankTitle: 'Financial Beginner',
+            gamesPlayed: 0,
+            totalQuestions: 0,
+            correctAnswers: 0,
+            completedMaterials: [],
+            badges: ['Financial Beginner'],
+            history: []
+          };
+          sessionStorage.setItem('econova_player', JSON.stringify(currentPlayer));
+          syncLocalLeaderboard(currentPlayer);
+          updatePlayerUI();
+          closeIdentityModal();
+          showToast(`Selamat datang, ${currentPlayer.fullName}!`, 'success');
+        }, 400);
+      }
+    }
+
+    function updatePlayerUI() {
+      if (!currentPlayer) return;
+      document.getElementById('header-name').textContent = currentPlayer.fullName;
+      document.getElementById('header-xp').textContent = `${currentPlayer.totalXP} XP • ${currentPlayer.className}`;
+      document.getElementById('header-lvl').textContent = currentPlayer.level;
+      renderProfileDashboard();
+      renderMaterial(currentMaterialIndex);
+    }
+
+    /**
+     * 7. RENDER HALAMAN MATERI PEMBELAJARAN
+     */
+    function openMaterialDetail(idx) {
+      navigateTo('materi');
+      selectMaterialTab(idx);
+    }
+
+    function selectMaterialTab(idx) {
+      currentMaterialIndex = idx;
+      for (let i = 0; i < 3; i++) {
+        const btn = document.getElementById(`mat-tab-${i}`);
+        if (i === idx) {
+          btn.className = 'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-electric-500 text-white shadow-md transition';
+        } else {
+          btn.className = 'px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-400 hover:text-white transition';
+        }
+      }
+      renderMaterial(idx);
+    }
+
+    function renderMaterial(idx) {
+      const mat = MATERIALS_DATA[idx];
+      const isCompleted = currentPlayer && currentPlayer.completedMaterials && currentPlayer.completedMaterials.includes(mat.id);
+      const topicCode = idx === 0 ? 'LJK' : idx === 1 ? 'OJK' : 'BI';
+
+      const container = document.getElementById('material-content-area');
+      container.innerHTML = `
+        <div class="space-y-8">
+          <!-- Header Modul -->
+          <div class="border-b border-slate-800 pb-6">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+              <span class="px-3 py-1 rounded-full bg-electric-500/20 text-electric-400 text-xs font-extrabold">${mat.badge}</span>
+              ${isCompleted
+                ? `<span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold">✓ Materi Selesai (+50 XP)</span>`
+                : `<span class="px-3 py-1 rounded-full bg-gold-400/20 text-gold-400 text-xs font-bold">Reward: +50 XP</span>`
+              }
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-black text-white">${mat.title}</h3>
+          </div>
+
+          <!-- 1. Tujuan Pembelajaran -->
+          <div class="bg-navy-900/90 rounded-2xl p-5 sm:p-6 border border-electric-400/25">
+            <h4 class="text-sm font-extrabold uppercase tracking-wider text-electric-400 mb-3 flex items-center gap-2">
+              <span>🎯 1. Tujuan Pembelajaran</span>
+            </h4>
+            <ul class="space-y-2 text-sm text-slate-200 list-disc list-inside">
+              ${mat.objectives.map(obj => `<li>${obj}</li>`).join('')}
+            </ul>
+          </div>
+
+          <!-- 2. Penjelasan Materi Sistematis -->
+          <div class="space-y-5">
+            <h4 class="text-sm font-extrabold uppercase tracking-wider text-gold-400">📘 2. Uraian Materi Inti</h4>
+            ${mat.sections.map(sec => `
+              <div class="bg-navy-900/50 rounded-2xl p-5 sm:p-6 border border-slate-800 space-y-2">
+                <h5 class="text-lg font-extrabold text-white">${sec.heading}</h5>
+                <p class="text-sm sm:text-base text-slate-300 leading-relaxed">${sec.body}</p>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- 3. Tabel Perbandingan / Infografis -->
+          <div class="space-y-3">
+            <h4 class="text-sm font-extrabold uppercase tracking-wider text-electric-400">📊 3. Tabel Perbandingan Kunci</h4>
+            <div class="overflow-x-auto rounded-2xl border border-slate-800">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr class="bg-navy-900 text-electric-400 border-b border-slate-800">
+                    ${mat.comparisonTable[0].map(th => `<th class="p-4 font-bold">${th}</th>`).join('')}
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 bg-navy-950/60">
+                  ${mat.comparisonTable.slice(1).map(row => `
+                    <tr>
+                      <td class="p-4 font-bold text-white">${row[0]}</td>
+                      <td class="p-4 text-slate-300">${row[1]}</td>
+                      <td class="p-4 text-slate-300">${row[2]}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 4. Contoh dalam Kehidupan Sehari-hari -->
+          <div class="rounded-2xl p-5 sm:p-6 bg-gradient-to-r from-amber-950/40 to-navy-900 border border-gold-400/30 text-sm sm:text-base text-slate-200 leading-relaxed">
+            💡 ${mat.dailyExample}
+          </div>
+
+          <!-- 5. Rangkuman Materi -->
+          <div class="rounded-2xl p-5 sm:p-6 bg-navy-900 border border-slate-700 space-y-2">
+            <div class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">📝 5. Rangkuman Materi</div>
+            <p class="text-sm text-slate-300 leading-relaxed">${mat.summary}</p>
+          </div>
+
+          <!-- 6. Aksi Selesai Materi & Uji Pemahaman -->
+          <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-800">
+            <button onclick="markMaterialComplete('${mat.id}')" ${isCompleted ? 'disabled' : ''}
+              class="px-6 py-3.5 rounded-2xl font-bold text-sm transition flex items-center gap-2 ${isCompleted ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-500/30 cursor-default' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg'}">
+              <span>${isCompleted ? '✓ Materi Telah Diklaim (+50 XP)' : 'Tandai Selesai & Klaim +50 XP'}</span>
+            </button>
+
+            <button onclick="launchTopicQuiz('${topicCode}')"
+              class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-electric-500 to-blue-600 hover:from-electric-400 hover:to-blue-500 text-white font-bold text-sm shadow-lg electric-glow transition flex items-center gap-2">
+              <span>Uji Pemahaman Materi Ini</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function markMaterialComplete(materialId) {
+      if (!currentPlayer) {
+        openIdentityModal();
+        showToast('Silakan isi identitas siswa terlebih dahulu untuk mengklaim XP!', 'info');
+        return;
+      }
+
+      if (isGAS) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            currentPlayer = res.profile;
+            sessionStorage.setItem('econova_player', JSON.stringify(currentPlayer));
+            updatePlayerUI();
+            if (!res.alreadyCompleted) {
+              showToast('Hebat! Kamu mendapatkan +50 XP karena menyelesaikan materi!', 'gold');
+            }
+          })
+          .withFailureHandler((err) => showToast('Gagal menyimpan progres: ' + err.message, 'error'))
+          .completeMaterialProgress({ playerId: currentPlayer.playerId, materialId });
+      } else {
+        if (!currentPlayer.completedMaterials.includes(materialId)) {
+          currentPlayer.completedMaterials.push(materialId);
+          currentPlayer.totalXP += 50;
+          recalcLocalPlayerStats();
+          sessionStorage.setItem('econova_player', JSON.stringify(currentPlayer));
+          syncLocalLeaderboard(currentPlayer);
+          updatePlayerUI();
+          showToast('Hebat! Kamu mendapatkan +50 XP karena menyelesaikan materi!', 'gold');
+        }
+      }
+    }
+
+    function launchTopicQuiz(topicCode) {
+      navigateTo('game');
+      document.getElementById('game-topic-select').value = topicCode;
+      startGame('QUICK_QUIZ');
+    }
+
+    /**
+     * 8. GAME ENGINE (QUICK QUIZ, TRUE/FALSE, MATCHING, CHALLENGE MODE, FINAL BOSS)
+     */
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function exitToLobby() {
+      clearInterval(activeGame.timer);
+      document.getElementById('game-lobby').classList.remove('hidden');
+      document.getElementById('game-stage').classList.add('hidden');
+      document.getElementById('matching-stage').classList.add('hidden');
+      document.getElementById('game-result-stage').classList.add('hidden');
+    }
+
+    function startGame(mode) {
+      if (!currentPlayer) {
+        openIdentityModal();
+        showToast('Isi identitas siswa dulu sebelum bermain agar XP tersimpan!', 'info');
+        return;
+      }
+
+      const selectedTopic = document.getElementById('game-topic-select').value;
+      const sessionToken = 'SES_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+
+      if (mode === 'MATCHING') {
+        startMatchingGame(selectedTopic, sessionToken);
+        return;
+      }
+
+      // Filter soal berdasarkan mode & topik
+      let pool = [...QUESTION_BANK];
+      if (mode !== 'FINAL_BOSS' && selectedTopic !== 'ALL') {
+        pool = pool.filter(item => item.topic === selectedTopic);
+      }
+
+      if (mode === 'TRUE_FALSE') {
+        pool = pool.filter(item => item.type === 'TF');
+        if (pool.length < 6) pool = QUESTION_BANK.filter(item => item.type === 'TF');
+      } else if (mode === 'QUICK_QUIZ') {
+        pool = pool.filter(item => item.type === 'MCQ');
+      }
+
+      pool = shuffleArray(pool);
+
+      let questionLimit = 8;
+      let timePerQuestion = 20;
+      let modeLabel = 'QUICK QUIZ';
+
+      if (mode === 'TRUE_FALSE') {
+        questionLimit = 8;
+        timePerQuestion = 15;
+        modeLabel = 'TRUE OR FALSE';
+      } else if (mode === 'CHALLENGE_EASY') {
+        questionLimit = 5;
+        timePerQuestion = 25;
+        modeLabel = 'CHALLENGE: EASY';
+      } else if (mode === 'CHALLENGE_MEDIUM') {
+        questionLimit = 10;
+        timePerQuestion = 20;
+        modeLabel = 'CHALLENGE: MEDIUM';
+      } else if (mode === 'CHALLENGE_HARD') {
+        questionLimit = 15;
+        timePerQuestion = 18;
+        modeLabel = 'CHALLENGE: HARD (1.5x XP)';
+      } else if (mode === 'FINAL_BOSS') {
+        questionLimit = 20;
+        timePerQuestion = 20;
+        modeLabel = 'FINAL BOSS EXAM';
+      }
+
+      activeGame = {
+        mode,
+        topic: mode === 'FINAL_BOSS' ? 'ALL' : selectedTopic,
+        questions: pool.slice(0, Math.min(questionLimit, pool.length)),
+        currentIndex: 0,
+        score: 0,
+        correctCount: 0,
+        timer: null,
+        timeLeft: timePerQuestion,
+        maxTime: timePerQuestion,
+        answered: false,
+        sessionToken
+      };
+
+      document.getElementById('game-lobby').classList.add('hidden');
+      document.getElementById('game-result-stage').classList.add('hidden');
+      document.getElementById('matching-stage').classList.add('hidden');
+      document.getElementById('game-stage').classList.remove('hidden');
+
+      document.getElementById('stage-mode-badge').textContent = modeLabel;
+      document.getElementById('stage-q-total').textContent = activeGame.questions.length;
+      document.getElementById('stage-score-text').textContent = '0 XP';
+
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      clearInterval(activeGame.timer);
+      const qObj = activeGame.questions[activeGame.currentIndex];
+      activeGame.answered = false;
+      activeGame.timeLeft = activeGame.maxTime;
+
+      document.getElementById('stage-q-num').textContent = activeGame.currentIndex + 1;
+      const topicNames = { LJK: 'Lembaga Jasa Keuangan', OJK: 'Otoritas Jasa Keuangan (OJK)', BI: 'Bank Sentral (Bank Indonesia)' };
+      document.getElementById('stage-topic-pill').textContent = `Topik: ${topicNames[qObj.topic] || qObj.topic}`;
+      document.getElementById('stage-question-text').textContent = qObj.q;
+
+      const feedbackBox = document.getElementById('stage-feedback-box');
+      feedbackBox.classList.add('hidden');
+
+      const optContainer = document.getElementById('stage-options-container');
+      optContainer.innerHTML = '';
+
+      if (qObj.type === 'TF') {
+        optContainer.className = 'grid grid-cols-1 sm:grid-cols-2 gap-4';
+        const tfStyles = [
+          'bg-emerald-600/20 hover:bg-emerald-600/40 border-emerald-500/50 text-emerald-300',
+          'bg-rose-600/20 hover:bg-rose-600/40 border-rose-500/50 text-rose-300'
+        ];
+        qObj.options.forEach((opt, idx) => {
+          const btn = document.createElement('button');
+          btn.className = `opt-btn p-5 rounded-2xl border-2 font-black text-lg transition flex items-center justify-center gap-2 ${tfStyles[idx]}`;
+          btn.innerHTML = `<span>${idx === 0 ? '✓ BENAR' : '✕ SALAH'}</span>`;
+          btn.onclick = () => handleAnswerSelect(idx);
+          optContainer.appendChild(btn);
+        });
+      } else {
+        optContainer.className = 'grid grid-cols-1 gap-3';
+        const letters = ['A', 'B', 'C', 'D'];
+        qObj.options.forEach((opt, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'opt-btn w-full text-left p-4 rounded-2xl bg-navy-900/90 hover:bg-navy-800 border border-slate-700 hover:border-electric-400 text-white font-medium text-sm sm:text-base transition flex items-center gap-3.5';
+          btn.innerHTML = `
+            <span class="w-8 h-8 rounded-xl bg-electric-500/20 text-electric-400 font-black text-sm flex items-center justify-center shrink-0">${letters[idx]}</span>
+            <span>${opt}</span>
+          `;
+          btn.onclick = () => handleAnswerSelect(idx);
+          optContainer.appendChild(btn);
+        });
+      }
+
+      // Jalankan Timer Hitung Mundur
+      updateTimerUI();
+      activeGame.timer = setInterval(() => {
+        activeGame.timeLeft -= 0.2;
+        if (activeGame.timeLeft <= 0) {
+          activeGame.timeLeft = 0;
+          clearInterval(activeGame.timer);
+          handleAnswerSelect(-1); // Waktu habis
+        }
+        updateTimerUI();
+      }, 200);
+    }
+
+    function updateTimerUI() {
+      const pct = Math.max(0, (activeGame.timeLeft / activeGame.maxTime) * 100);
+      document.getElementById('stage-timer-bar').style.width = `${pct}%`;
+      document.getElementById('stage-timer-text').textContent = `${Math.ceil(activeGame.timeLeft)}s`;
+    }
+
+    function handleAnswerSelect(selectedIndex) {
+      if (activeGame.answered) return;
+      activeGame.answered = true;
+      clearInterval(activeGame.timer);
+
+      const qObj = activeGame.questions[activeGame.currentIndex];
+      const isCorrect = selectedIndex === qObj.ans;
+
+      // Hitung Poin: Benar +100 XP, Bonus Kecepatan hingga +50 XP
+      let earnedThisQ = 0;
+      if (isCorrect) {
+        const speedRatio = activeGame.timeLeft / activeGame.maxTime;
+        const speedBonus = Math.round(speedRatio * 50);
+        const multiplier = activeGame.mode === 'CHALLENGE_HARD' ? 1.5 : 1;
+        earnedThisQ = Math.round((100 + speedBonus) * multiplier);
+        activeGame.score += earnedThisQ;
+        activeGame.correctCount += 1;
+        document.getElementById('stage-score-text').textContent = `${activeGame.score} XP`;
+      }
+
+      // Warnai tombol pilihan
+      const buttons = document.querySelectorAll('.opt-btn');
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === qObj.ans) {
+          btn.className = 'opt-btn w-full text-left p-4 rounded-2xl bg-emerald-600/30 border-2 border-emerald-400 text-white font-bold text-sm sm:text-base flex items-center gap-3.5';
+        } else if (idx === selectedIndex && !isCorrect) {
+          btn.className = 'opt-btn w-full text-left p-4 rounded-2xl bg-rose-600/30 border-2 border-rose-400 text-white font-bold text-sm sm:text-base flex items-center gap-3.5';
+        } else {
+          btn.classList.add('opacity-50');
+        }
+      });
+
+      // Tampilkan kotak penjelasan
+      const feedbackBox = document.getElementById('stage-feedback-box');
+      const feedbackTitle = document.getElementById('stage-feedback-title');
+      const feedbackExp = document.getElementById('stage-feedback-exp');
+      const nextBtn = document.getElementById('stage-next-btn');
+
+      feedbackBox.classList.remove('hidden');
+      if (isCorrect) {
+        feedbackBox.className = 'rounded-2xl p-4 sm:p-5 border bg-emerald-950/60 border-emerald-400/50';
+        feedbackTitle.className = 'flex items-center gap-2 font-black text-base mb-1 text-emerald-400';
+        feedbackTitle.textContent = `🎉 Jawaban Tepat! (+${earnedThisQ} XP)`;
+      } else {
+        feedbackBox.className = 'rounded-2xl p-4 sm:p-5 border bg-rose-950/60 border-rose-400/50';
+        feedbackTitle.className = 'flex items-center gap-2 font-black text-base mb-1 text-rose-400';
+        feedbackTitle.textContent = selectedIndex === -1 ? '⏰ Waktu Habis! (+0 XP)' : '❌ Kurang Tepat! (+0 XP)';
+      }
+
+      feedbackExp.textContent = qObj.exp;
+      nextBtn.textContent = activeGame.currentIndex + 1 >= activeGame.questions.length ? 'Lihat Hasil Akhir 🏆' : 'Soal Berikutnya →';
+    }
+
+    function nextQuestion() {
+      if (activeGame.currentIndex + 1 < activeGame.questions.length) {
+        activeGame.currentIndex += 1;
+        renderQuestion();
+      } else {
+        finishQuizSession();
+      }
+    }
+
+    function finishQuizSession() {
+      // Bonus penyelesaian permainan: +100 XP (atau +300 XP untuk Final Boss)
+      const completionBonus = activeGame.mode === 'FINAL_BOSS' ? 300 : 100;
+      const totalEarned = activeGame.score + completionBonus;
+      const totalQ = activeGame.questions.length;
+      const correctQ = activeGame.correctCount;
+
+      saveGameCompletion({
+        sessionToken: activeGame.sessionToken,
+        gameMode: activeGame.mode,
+        topic: activeGame.topic,
+        scoreEarned: totalEarned,
+        correctCount: correctQ,
+        totalCount: totalQ
+      });
+    }
+
+    /**
+     * 9. MATCHING GAME ENGINE
+     */
+    function startMatchingGame(selectedTopic, sessionToken) {
+      let pool = [...MATCHING_PAIRS];
+      if (selectedTopic !== 'ALL') {
+        const filtered = pool.filter(p => p.topic === selectedTopic);
+        if (filtered.length >= 3) {
+          pool = [...filtered, ...pool.filter(p => p.topic !== selectedTopic)];
+        }
+      }
+      const chosenPairs = shuffleArray(pool).slice(0, 6);
+
+      matchState = {
+        selectedTerm: null,
+        matchedIds: new Set(),
+        pairs: chosenPairs,
+        score: 0,
+        attempts: 0,
+        sessionToken
+      };
+
+      document.getElementById('game-lobby').classList.add('hidden');
+      document.getElementById('game-stage').classList.add('hidden');
+      document.getElementById('game-result-stage').classList.add('hidden');
+      document.getElementById('matching-stage').classList.remove('hidden');
+
+      renderMatchingBoard();
+    }
+
+    function renderMatchingBoard() {
+      document.getElementById('match-count').textContent = matchState.matchedIds.size;
+      document.getElementById('match-score').textContent = `${matchState.score} XP`;
+
+      const termsCol = document.getElementById('match-terms-col');
+      const defsCol = document.getElementById('match-defs-col');
+
+      const termsList = matchState.pairs;
+      const defsList = shuffleArray(matchState.pairs);
+
+      termsCol.innerHTML = termsList.map(item => {
+        const isMatched = matchState.matchedIds.has(item.id);
+        return `
+          <button onclick="selectMatchTerm('${item.id}')" id="term-btn-${item.id}" ${isMatched ? 'disabled' : ''}
+            class="match-term-btn w-full text-left p-4 rounded-2xl border font-bold text-sm transition ${
+              isMatched
+                ? 'bg-emerald-950/50 border-emerald-500/40 text-emerald-400 opacity-60'
+                : 'bg-navy-900 hover:bg-navy-800 border-slate-700 text-white'
+            }">
+            ${isMatched ? '✓ ' : ''}${item.term}
+          </button>
+        `;
+      }).join('');
+
+      defsCol.innerHTML = defsList.map(item => {
+        const isMatched = matchState.matchedIds.has(item.id);
+        return `
+          <button onclick="selectMatchDef('${item.id}')" id="def-btn-${item.id}" ${isMatched ? 'disabled' : ''}
+            class="match-def-btn w-full text-left p-4 rounded-2xl border text-xs sm:text-sm leading-relaxed transition ${
+              isMatched
+                ? 'bg-emerald-950/50 border-emerald-500/40 text-emerald-300 opacity-60'
+                : 'bg-navy-900/70 hover:bg-purple-900/30 border-slate-700 text-slate-200'
+            }">
+            ${item.def}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectMatchTerm(id) {
+      if (matchState.matchedIds.has(id)) return;
+      matchState.selectedTerm = id;
+      document.querySelectorAll('.match-term-btn').forEach(btn => {
+        btn.classList.remove('border-purple-400', 'bg-purple-900/40');
+      });
+      const activeBtn = document.getElementById(`term-btn-${id}`);
+      if (activeBtn) activeBtn.classList.add('border-purple-400', 'bg-purple-900/40');
+    }
+
+    function selectMatchDef(defId) {
+      if (!matchState.selectedTerm) {
+        showToast('Pilih kartu Istilah di sebelah kiri terlebih dahulu!', 'info');
+        return;
+      }
+      if (matchState.matchedIds.has(defId)) return;
+
+      matchState.attempts += 1;
+      if (matchState.selectedTerm === defId) {
+        matchState.matchedIds.add(defId);
+        matchState.score += 100;
+        matchState.selectedTerm = null;
+        showToast('Cocok! +100 XP', 'success');
+
+        // Tandai cocok tanpa mengacak ulang posisi
+        const tBtn = document.getElementById(`term-btn-${defId}`);
+        const dBtn = document.getElementById(`def-btn-${defId}`);
+        if (tBtn) {
+          tBtn.disabled = true;
+          tBtn.className = 'match-term-btn w-full text-left p-4 rounded-2xl border bg-emerald-950/50 border-emerald-500/40 text-emerald-400 opacity-60 font-bold text-sm';
+        }
+        if (dBtn) {
+          dBtn.disabled = true;
+          dBtn.className = 'match-def-btn w-full text-left p-4 rounded-2xl border bg-emerald-950/50 border-emerald-500/40 text-emerald-300 opacity-60 text-xs sm:text-sm';
+        }
+        document.getElementById('match-count').textContent = matchState.matchedIds.size;
+        document.getElementById('match-score').textContent = `${matchState.score} XP`;
+
+        if (matchState.matchedIds.size === matchState.pairs.length) {
+          setTimeout(() => {
+            saveGameCompletion({
+              sessionToken: matchState.sessionToken,
+              gameMode: 'MATCHING_GAME',
+              topic: 'ALL',
+              scoreEarned: matchState.score + 100, // +100 XP bonus selesai
+              correctCount: matchState.pairs.length,
+              totalCount: Math.max(matchState.pairs.length, matchState.attempts)
+            });
+          }, 600);
+        }
+      } else {
+        showToast('Pasangan belum tepat, coba lagi!', 'error');
+      }
+    }
+
+    /**
+     * 10. SIMPAN SKOR KE GOOGLE SHEETS & TAMPILKAN HASIL
+     */
+    function saveGameCompletion(resultPayload) {
+      document.getElementById('game-stage').classList.add('hidden');
+      document.getElementById('matching-stage').classList.add('hidden');
+      document.getElementById('game-result-stage').classList.remove('hidden');
+
+      const acc = Math.round((resultPayload.correctCount / resultPayload.totalCount) * 100);
+      document.getElementById('res-xp').textContent = `+${resultPayload.scoreEarned} XP`;
+      document.getElementById('res-correct').textContent = `${resultPayload.correctCount}/${resultPayload.totalCount}`;
+      document.getElementById('res-accuracy').textContent = `${acc}%`;
+      document.getElementById('res-title').textContent = acc >= 80 ? 'Luar Biasa, Ekonom Muda!' : acc >= 50 ? 'Kerja Bagus!' : 'Terus Berlatih!';
+
+      const fullPayload = {
+        ...resultPayload,
+        playerId: currentPlayer.playerId
+      };
+
+      if (isGAS) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            if (res.profile) {
+              currentPlayer = res.profile;
+              sessionStorage.setItem('econova_player', JSON.stringify(currentPlayer));
+              updatePlayerUI();
+            }
+            if (res.leaderboardData) {
+              leaderboardCache = res.leaderboardData.leaderboard;
+              updateGlobalStatsUI(res.leaderboardData.stats);
+            }
+            showToast(`+${resultPayload.scoreEarned} XP tersimpan ke Google Sheets!`, 'gold');
+          })
+          .withFailureHandler((err) => showToast('Gagal menyimpan skor: ' + err.message, 'error'))
+          .submitGameResult(fullPayload);
+      } else {
+        // Update lokal saat mode pratinjau
+        currentPlayer.totalXP += resultPayload.scoreEarned;
+        currentPlayer.gamesPlayed += 1;
+        currentPlayer.totalQuestions = (currentPlayer.totalQuestions || 0) + resultPayload.totalCount;
+        currentPlayer.correctAnswers = (currentPlayer.correctAnswers || 0) + resultPayload.correctCount;
+        currentPlayer.history = currentPlayer.history || [];
+        currentPlayer.history.unshift({
+          timestamp: new Date().toISOString(),
+          gameMode: resultPayload.gameMode,
+          topic: resultPayload.topic,
+          scoreEarned: resultPayload.scoreEarned,
+          correctCount: resultPayload.correctCount,
+          totalCount: resultPayload.totalCount
+        });
+        recalcLocalPlayerStats(resultPayload.gameMode === 'FINAL_BOSS' && acc >= 60);
+        sessionStorage.setItem('econova_player', JSON.stringify(currentPlayer));
+        syncLocalLeaderboard(currentPlayer);
+        updatePlayerUI();
+        showToast(`+${resultPayload.scoreEarned} XP berhasil ditambahkan!`, 'gold');
+      }
+    }
+
+    function recalcLocalPlayerStats(bossDefeated = false) {
+      const xp = currentPlayer.totalXP;
+      if (xp >= 2500) { currentPlayer.level = 6; currentPlayer.rankTitle = 'Economics Grandmaster'; }
+      else if (xp >= 1800) { currentPlayer.level = 5; currentPlayer.rankTitle = 'Economics Master'; }
+      else if (xp >= 1200) { currentPlayer.level = 4; currentPlayer.rankTitle = 'Monetary Expert'; }
+      else if (xp >= 700) { currentPlayer.level = 3; currentPlayer.rankTitle = 'OJK Explorer'; }
+      else if (xp >= 300) { currentPlayer.level = 2; currentPlayer.rankTitle = 'Smart Investor'; }
+      else { currentPlayer.level = 1; currentPlayer.rankTitle = 'Financial Beginner'; }
+
+      const b = new Set(currentPlayer.badges || ['Financial Beginner']);
+      if (xp >= 300 || currentPlayer.gamesPlayed >= 2) b.add('Smart Investor');
+      if (currentPlayer.completedMaterials?.includes('MATERI_2') || xp >= 700) b.add('OJK Explorer');
+      if (currentPlayer.completedMaterials?.includes('MATERI_3') || xp >= 1200) b.add('Monetary Expert');
+      if (xp >= 1800 || bossDefeated) b.add('Economics Master');
+      currentPlayer.badges = Array.from(b);
+    }
+
+    /**
+     * 11. LEADERBOARD & STATISTIK
+     */
+    function loadInitialData() {
+      if (isGAS) {
+        refreshLeaderboard();
+      } else {
+        // Data awal simulasi leaderboard kelas agar langsung hidup saat pratinjau
+        leaderboardCache = [
+          { rank: 1, playerId: 'alya_putri__x-1', fullName: 'Alya Putri Ramadhani', className: 'X-1', totalXP: 1950, level: 5, rankTitle: 'Economics Master', gamesPlayed: 9, accuracy: 92 },
+          { rank: 2, playerId: 'dimas_pratama__x-3', fullName: 'Dimas Arya Pratama', className: 'X-3', totalXP: 1620, level: 4, rankTitle: 'Monetary Expert', gamesPlayed: 8, accuracy: 88 },
+          { rank: 3, playerId: 'nadia_zahra__x-2', fullName: 'Nadia Zahra Salsabila', className: 'X-2', totalXP: 1380, level: 4, rankTitle: 'Monetary Expert', gamesPlayed: 7, accuracy: 85 },
+          { rank: 4, playerId: 'farhan_hakim__x-4', fullName: 'Farhan Hakim', className: 'X-4', totalXP: 940, level: 3, rankTitle: 'OJK Explorer', gamesPlayed: 5, accuracy: 80 },
+          { rank: 5, playerId: 'citra_lestari__x-1', fullName: 'Citra Dewi Lestari', className: 'X-1', totalXP: 680, level: 2, rankTitle: 'Smart Investor', gamesPlayed: 4, accuracy: 78 }
+        ];
+        renderLeaderboard();
+      }
+    }
+
+    function syncLocalLeaderboard(player) {
+      const acc = player.totalQuestions > 0 ? Math.round((player.correctAnswers / player.totalQuestions) * 100) : 0;
+      const entry = {
+        playerId: player.playerId,
+        fullName: player.fullName,
+        className: player.className,
+        totalXP: player.totalXP,
+        level: player.level,
+        rankTitle: player.rankTitle,
+        gamesPlayed: player.gamesPlayed,
+        accuracy: acc
+      };
+      const idx = leaderboardCache.findIndex(p => p.playerId === player.playerId);
+      if (idx >= 0) leaderboardCache[idx] = entry;
+      else leaderboardCache.push(entry);
+
+      leaderboardCache.sort((a, b) => b.totalXP - a.totalXP || b.accuracy - a.accuracy);
+      leaderboardCache.forEach((item, i) => item.rank = i + 1);
+      renderLeaderboard();
+    }
+
+    function refreshLeaderboard() {
+      if (isGAS) {
+        google.script.run
+          .withSuccessHandler((res) => {
+            leaderboardCache = res.leaderboard || [];
+            updateGlobalStatsUI(res.stats);
+            renderLeaderboard();
+            renderProfileDashboard();
+          })
+          .withFailureHandler((err) => showToast('Gagal memuat leaderboard: ' + err.message, 'error'))
+          .getLeaderboardAndStats();
+      } else {
+        renderLeaderboard();
+      }
+    }
+
+    function updateGlobalStatsUI(stats) {
+      if (!stats) return;
+      document.getElementById('stat-players').textContent = stats.totalPlayers;
+      document.getElementById('stat-challenges').textContent = stats.totalChallenges;
+    }
+
+    function renderLeaderboard() {
+      const podium = document.getElementById('podium-container');
+      const tbody = document.getElementById('leaderboard-table-body');
+
+      const top1 = leaderboardCache[0];
+      const top2 = leaderboardCache[1];
+      const top3 = leaderboardCache[2];
+
+      const buildPodiumCard = (player, place) => {
+        if (!player) return `<div class="glass-card rounded-3xl p-6 text-center text-slate-500 border border-slate-800">Menunggu Juara #${place}</div>`;
+        const styles = {
+          1: { order: 'md:order-2 md:pb-10', border: 'border-gold-400 gold-glow', badge: 'bg-gold-400 text-navy-950', medal: '🥇 JUARA 1' },
+          2: { order: 'md:order-1', border: 'border-slate-300/60', badge: 'bg-slate-300 text-navy-950', medal: '🥈 JUARA 2' },
+          3: { order: 'md:order-3', border: 'border-amber-600/60', badge: 'bg-amber-600 text-white', medal: '🥉 JUARA 3' }
+        }[place];
+
+        return `
+          <div class="glass-card rounded-3xl p-6 text-center border-2 ${styles.border} ${styles.order} transition hover:-translate-y-1">
+            <span class="inline-block px-3.5 py-1 rounded-full text-xs font-black ${styles.badge} mb-4">${styles.medal}</span>
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-navy-800 border border-electric-400/30 flex items-center justify-center text-2xl font-black text-white mb-3">
+              ${player.fullName.charAt(0).toUpperCase()}
+            </div>
+            <h4 class="text-lg font-extrabold text-white truncate">${player.fullName}</h4>
+            <p class="text-xs text-electric-400 font-bold mb-3">${player.className} • Lv.${player.level}</p>
+            <div class="text-2xl font-black text-gold-400">${player.totalXP} XP</div>
+            <div class="text-[11px] text-slate-400 mt-1">Akurasi ${player.accuracy}% • ${player.gamesPlayed} Game</div>
+          </div>
+        `;
+      };
+
+      podium.innerHTML = buildPodiumCard(top2, 2) + buildPodiumCard(top1, 1) + buildPodiumCard(top3, 3);
+
+      tbody.innerHTML = leaderboardCache.map(p => {
+        const isMe = currentPlayer && p.playerId === currentPlayer.playerId;
+        return `
+          <tr class="${isMe ? 'bg-electric-500/15' : 'hover:bg-white/5'} transition">
+            <td class="py-4 px-5 font-black ${p.rank <= 3 ? 'text-gold-400' : 'text-slate-400'}">#${p.rank}</td>
+            <td class="py-4 px-5 font-bold text-white">
+              ${p.fullName} ${isMe ? '<span class="ml-2 px-2 py-0.5 rounded bg-electric-500 text-[10px] font-black">KAMU</span>' : ''}
+            </td>
+            <td class="py-4 px-5 text-slate-300 font-semibold">${p.className}</td>
+            <td class="py-4 px-5">
+              <span class="px-2.5 py-1 rounded-lg bg-navy-800 text-electric-400 text-xs font-bold">Lv.${p.level} ${p.rankTitle}</span>
+            </td>
+            <td class="py-4 px-5 text-center text-slate-300 font-semibold">${p.gamesPlayed}</td>
+            <td class="py-4 px-5 text-center text-emerald-400 font-bold">${p.accuracy}%</td>
+            <td class="py-4 px-5 text-right font-black text-gold-400">${p.totalXP} XP</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    /**
+     * 12. DASHBOARD PROFIL PEMAIN
+     */
+    function renderProfileDashboard() {
+      if (!currentPlayer) return;
+      document.getElementById('prof-avatar').textContent = currentPlayer.fullName.charAt(0).toUpperCase();
+      document.getElementById('prof-name').textContent = currentPlayer.fullName;
+      document.getElementById('prof-class').textContent = `Kelas ${currentPlayer.className}`;
+      document.getElementById('prof-rank-title').textContent = `Level ${currentPlayer.level} • ${currentPlayer.rankTitle}`;
+
+      const myRankObj = leaderboardCache.find(p => p.playerId === currentPlayer.playerId);
+      document.getElementById('prof-leaderboard-rank').textContent = myRankObj ? `#${myRankObj.rank}` : '#-';
+
+      // Hitung progress bar ke level berikutnya
+      const thresholds = [0, 300, 700, 1200, 1800, 2500, 5000];
+      const currentMin = thresholds[currentPlayer.level - 1] || 0;
+      const nextMax = thresholds[currentPlayer.level] || 5000;
+      const pct = Math.min(100, Math.max(5, Math.round(((currentPlayer.totalXP - currentMin) / (nextMax - currentMin)) * 100)));
+
+      document.getElementById('prof-xp-progress-text').textContent = `${currentPlayer.totalXP} / ${nextMax} XP`;
+      document.getElementById('prof-xp-bar').style.width = `${pct}%`;
+
+      document.getElementById('prof-total-xp').textContent = `${currentPlayer.totalXP} XP`;
+      document.getElementById('prof-games-played').textContent = currentPlayer.gamesPlayed || 0;
+      document.getElementById('prof-materials-count').textContent = `${(currentPlayer.completedMaterials || []).length} / 3`;
+      document.getElementById('prof-badges-count').textContent = `${(currentPlayer.badges || []).length} / 5`;
+
+      // Render Badges
+      const badgeGrid = document.getElementById('prof-badges-grid');
+      badgeGrid.innerHTML = ALL_BADGES.map(b => {
+        const unlocked = (currentPlayer.badges || []).includes(b.name);
+        return `
+          <div class="p-4 rounded-2xl border text-center transition ${
+            unlocked
+              ? 'bg-gradient-to-b from-navy-800 to-navy-900 border-gold-400/50 shadow-md'
+              : 'bg-navy-950/60 border-slate-800 opacity-45 grayscale'
+          }">
+            <div class="text-3xl mb-2">${b.icon}</div>
+            <div class="text-xs font-extrabold text-white">${b.name}</div>
+            <div class="text-[10px] text-slate-400 mt-1">${b.desc}</div>
+          </div>
+        `;
+      }).join('');
+
+      // Render History
+      const histList = document.getElementById('prof-history-list');
+      const history = currentPlayer.history || [];
+      if (history.length === 0) {
+        histList.innerHTML = `<div class="text-sm text-slate-400 bg-navy-900/50 p-4 rounded-2xl border border-slate-800">Belum ada riwayat permainan. Yuk mainkan tantangan di Game Center!</div>`;
+      } else {
+        histList.innerHTML = history.map(h => `
+          <div class="flex items-center justify-between p-4 rounded-2xl bg-navy-900/70 border border-slate-800 text-xs sm:text-sm">
+            <div>
+              <div class="font-bold text-white">${h.gameMode.replace('_', ' ')} <span class="text-slate-400 font-normal">(${h.topic})</span></div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Benar ${h.correctCount}/${h.totalCount} soal</div>
+            </div>
+            <div class="font-black text-gold-400">+${h.scoreEarned} XP</div>
+          </div>
+        `).join('');
+      }
+    }
+  </script>
+</body>
+</html>
